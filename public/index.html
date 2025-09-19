@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>QR Generator</title>
+  <style>
+    :root{--border:#e5e7eb}
+    body{font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:24px;color:#111}
+    .wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+    .card{border:1px solid var(--border);border-radius:12px;padding:16px}
+    h1{margin:0 0 16px 0}
+    h2{margin:16px 0 12px 0;font-size:18px}
+    .row{display:flex;gap:12px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+    label{min-width:140px}
+    input[type=text],input[type=number],select,textarea{padding:8px;border:1px solid var(--border);border-radius:8px;min-width:280px}
+    textarea{min-height:110px;width:100%}
+    input[type=color]{width:48px;height:40px;padding:0;border:1px solid var(--border);border-radius:8px}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .tab{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer}
+    .tab.active{background:#111;color:#fff;border-color:#111}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+    button{padding:10px 16px;border:1px solid var(--border);border-radius:8px;background:#111;color:#fff;cursor:pointer}
+    #out{display:flex;align-items:center;justify-content:center;min-height:520px;border:1px dashed var(--border);border-radius:12px;background:#fafafa}
+    img,object{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border);background:#fff}
+    small.muted{color:#666}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 980px){.wrap{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <h1>QR Generator</h1>
+  <div class="wrap">
+    <div class="card">
+      <div class="tabs" id="tabs"></div>
+      <div id="form-area"></div>
+
+      <h2>Параметры</h2>
+      <div class="row">
+        <label for="format">Формат</label>
+        <select id="format">
+          <option value="png">png (цвета доступны)</option>
+          <option value="svg">svg (монохром)</option>
+        </select>
+      </div>
+      <div class="grid2">
+        <div class="row">
+          <label for="size">Размер (px)</label>
+          <input id="size" type="number" min="64" max="2048" value="512">
+        </div>
+        <div class="row">
+          <label for="margin">Отступ (модули)</label>
+          <input id="margin" type="number" min="0" max="8" value="2">
+        </div>
+      </div>
+      <div id="color-block">
+        <div class="grid2">
+          <div class="row">
+            <label>Цвет модулей</label>
+            <input id="fill" type="color" value="#000000">
+            <input id="fillText" type="text" value="#000000" placeholder="#RRGGBB" style="min-width:120px">
+          </div>
+          <div class="row">
+            <label>Цвет фона</label>
+            <input id="back" type="color" value="#FFFFFF">
+            <input id="backText" type="text" value="#FFFFFF" placeholder="#RRGGBB" style="min-width:120px">
+          </div>
+        </div>
+        <small class="muted">Цвета работают только для PNG.</small>
+      </div>
+
+      <div class="actions">
+        <button id="btnGen">Сгенерировать</button>
+        <button id="btnDownload">Скачать</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Превью</h2>
+      <div id="out"><small class="muted">Тут появится QR</small></div>
+    </div>
+  </div>
+
+  <script>
+    let SPEC=null, active=null;
+
+    async function loadSpec(){
+      const r = await fetch('/form-spec');
+      SPEC = await r.json();
+      active = SPEC.types[0].key;
+      document.getElementById('size').value   = SPEC.qr_params.size.default;
+      document.getElementById('margin').value = SPEC.qr_params.margin.default;
+      renderTabs(); renderForm();
+    }
+
+    function renderTabs(){
+      const tabs = document.getElementById('tabs'); tabs.innerHTML='';
+      SPEC.types.forEach(t=>{
+        const b=document.createElement('button');
+        b.className='tab'+(t.key===active?' active':'');
+        b.textContent=t.label;
+        b.onclick=()=>{active=t.key; renderTabs(); renderForm();};
+        tabs.appendChild(b);
+      });
+    }
+
+    function renderForm(){
+      const area=document.getElementById('form-area'); area.innerHTML='';
+      const fields = SPEC.fields[active];
+      fields.forEach(f=>{
+        const row=document.createElement('div'); row.className='row';
+        const lab=document.createElement('label'); lab.textContent=f.label;
+        const ctl=document.createElement('div');
+        let el;
+        if (f.type==='select'){
+          el=document.createElement('select'); el.id='f_'+f.key;
+          (f.options||[]).forEach(o=>{const opt=document.createElement('option'); opt.value=o; opt.textContent=o; el.appendChild(opt);});
+        } else if (f.type==='textarea'){
+          el=document.createElement('textarea'); el.id='f_'+f.key; if (f.placeholder) el.placeholder=f.placeholder;
+        } else if (f.type==='checkbox'){
+          el=document.createElement('select'); el.id='f_'+f.key; el.innerHTML='<option value="0">Нет</option><option value="1">Да</option>';
+        } else {
+          el=document.createElement('input'); el.type='text'; el.id='f_'+f.key; if (f.placeholder) el.placeholder=f.placeholder;
+        }
+        ctl.appendChild(el); row.appendChild(lab); row.appendChild(ctl); area.appendChild(row);
+      });
+    }
+
+    function collectFields(){
+      const res={};
+      SPEC.fields[active].forEach(f=>{
+        const el=document.getElementById('f_'+f.key);
+        if (!el) return;
+        if (f.type==='checkbox') res[f.key] = (el.value==='1');
+        else res[f.key] = (el.value||'');
+      });
+      return res;
+    }
+
+    // Синхронизация color <-> текст
+    const fill = document.getElementById('fill'), back = document.getElementById('back');
+    const fillText = document.getElementById('fillText'), backText = document.getElementById('backText');
+    fill.addEventListener('input', ()=>fillText.value = fill.value.toUpperCase());
+    back.addEventListener('input', ()=>backText.value = back.value.toUpperCase());
+    fillText.addEventListener('input', ()=>{ if(/^#?[0-9a-fA-F]{6}$/.test(fillText.value)) fill.value = fixHex(fillText.value); });
+    backText.addEventListener('input', ()=>{ if(/^#?[0-9a-fA-F]{6}$/.test(backText.value)) back.value = fixHex(backText.value); });
+    function fixHex(s){ s=s.toUpperCase(); return s.startsWith('#')?s:('#'+s); }
+
+    function showByUrl(url, format){
+      const out = document.getElementById('out'); out.innerHTML='';
+      if (format==='png'){
+        const img = new Image(); img.src = url; out.appendChild(img);
+      } else {
+        const obj = document.createElement('object'); obj.type='image/svg+xml'; obj.data=url; out.appendChild(obj);
+      }
+    }
+
+    function downloadUrl(url, filename){
+      const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    async function composeData(){
+      const body = { type: active, fields: collectFields() };
+      const r = await fetch('/compose',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      if (!r.ok){ alert('Ошибка compose: '+r.status); throw new Error('compose failed'); }
+      return (await r.json()).data;
+    }
+
+    async function generate(){
+      const format = document.getElementById('format').value;
+      const size   = document.getElementById('size').value;
+      const margin = document.getElementById('margin').value;
+      const fillV  = document.getElementById('fillText').value || '#000000';
+      const backV  = document.getElementById('backText').value || '#FFFFFF';
+
+      const data = await composeData();
+      // длинные строки — POST /qr, иначе GET /qr
+      if (data.length > 4000){
+        const resp = await fetch('/qr', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ data, format, size:+size, margin:+margin, fill_color:fillV, back_color:backV })
+        });
+        if (!resp.ok){ alert('Ошибка QR: '+resp.status); return; }
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        showByUrl(url, format);
+        document.getElementById('btnDownload').onclick = ()=>downloadUrl(url, `qr.${format}`);
+        return;
+      }
+
+      const qs=new URLSearchParams({ data, format, size, margin, fill_color:fillV, back_color:backV, download:0, filename:'qr' });
+      const url='/qr?'+qs.toString();
+      showByUrl(url, format);
+      document.getElementById('btnDownload').onclick = ()=>downloadUrl(url.replace('download=0','download=1'), `qr.${format}`);
+    }
+
+    // init
+    loadSpec();
+    document.getElementById('format').addEventListener('change', e=>{
+      document.getElementById('color-block').style.display = e.target.value==='png' ? 'block':'none';
+    });
+    document.getElementById('btnGen').onclick = generate;
+    document.getElementById('color-block').style.display='block';
+  </script>
+</body>
+</html>

@@ -1,20 +1,21 @@
+# Базовый образ с Python
 FROM python:3.11-slim
 
-ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+# Чтобы питон писал логи сразу в stdout/stderr
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
-# Нужные библиотеки для Pillow
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libjpeg62-turbo zlib1g ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
+# Рабочая директория в контейнере
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
 
-# Нерутовый юзер
-RUN useradd -m appuser
-USER appuser
+# Сначала ставим зависимости
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
+# Потом копируем исходники
+COPY . /app
+
+# Открываем порт 8000
 EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
+
+# Запускаем uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
