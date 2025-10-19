@@ -38,7 +38,6 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # код и ресурсы
 COPY backend ./backend
-COPY frontend ./frontend 
 COPY config ./config
 COPY assets ./assets
 COPY README.md ./
