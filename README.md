@@ -1,46 +1,70 @@
+# QR vCard Microservice (`stable_vcard`)
 
-# QR Generator Service
+Микросервис для генерации QR-кода **визитки (vCard 3.0)**.  
+Сервис разработан на **Python 3.11 + FastAPI** и предназначен для использования внутри корпоративного портала.
 
-Микросервис для генерации **QR-кодов** (текст, ссылка, телефон, email, wi-fi vCard).  
-Написан на **Python 3.11 + FastAPI**.  
-Возвращает изображение QR-кода в формате **PNG** или **SVG** по HTTP-запросу.
+---
 
-## Возможности 
+## Назначение
 
-- Генерация QR-кодов в формате PNG или SVG.  
-- Поддержка различных типов данных: текст, ссылка, телефон, email, SMS, Wi-Fi, vCard.  
-- Цветовая настройка QR-кодов (для PNG).  
-- Автоматическая отрисовка фронта на основе спецификации с бэка (`/form-spec`).  
-- Кэширование результатов (ETag, Cache-Control).  
-- Раздача фронта напрямую из FastAPI.
+Сервис формирует QR-код на основе данных сотрудника (ФИО, должность, организация, подразделение, контактные данные).  
+QR возвращается в формате **PNG** и может быть встроен в карточку профиля сотрудника на портале.
+
+Используется как изолированный микросервис без UI.
+
+---
+
+## ⚙️ Возможности
+
+- Генерация QR-кода с визиткой vCard 3.0  
+- Формат совместим с iOS / Android  
+- Возврат изображения в формате **PNG**  
+- ETag и Cache-Control для кэширования изображений  
+- Статичный корпоративный стиль   
+- Чистый FastAPI, без внешних зависимостей, кроме PIL и qrcode
+
+---
 
 ## Структура проекта  
 
 qr-service/  
-├── README.md                 # Описание проекта, использование и настройка  
-├── requirements-win.txt      # Список зависимостей   
-├── pkgs/                     # Локальные wheel-пакеты для оффлайн установки  
-├── venv                      # Окружение
-├── main.py                   # FastAPI приложение с эндпоинтами   
-└── public/  
-    └── index.html            # Веб-интерфейс: формы по /form-spec, вызовы /compose и /qr
+├── assets/
+    └── logo.png              # Логотип АО "Зарубежнефть" для подложки
+├── backend/
+    └── main.py               # FastAPI приложение с эндпоинтами 
+    └── qr_core.py            # Логика генерации PNG и отрисовки QR
+    └── vcard_portal.py       # Генерация QR Vcard из данных на портале
+├── config/
+    └── config.py             # Чтение json словаря параметров
+    └── qr_config.json        # Конфиг (изменения параметров без docker build)
+├── pkgs/                     # Локальные wheel-пакеты для оффлайн установки                        
+├── README.md                 # Описание проекта, использование и настройка
+├── requirements.txt          # Список зависимостей 
+├── Dockerfile
+├── docker-compose.yml
 
 ## Запуск
-
+### Через Docker Compose
 ```bash
-py -3.11 -m venv venv
-.\venv\Scripts\python.exe -m pip install --no-index --find-links=pkgs -r requirements-win.txt
-.\venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
+docker-compose up --build
+```
+### Через Python
+```
+pip install -r requirements.txt
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
 ```
 
 После запуска сервис доступен по адресу:
-- Frontend: [http://localhost:8000/ui](http://localhost:8000/ui) 
+- API доступно по адресу: http://localhost:8000/qr/vcard
 - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)  
 - Health-check: [http://localhost:8000/healthz](http://localhost:8000/healthz) 
 
-## API
+## Эндпоинт
 
-### `GET /healthz`
+### `GET /vcard
+
+Генерация QR-кода визитки сотрудника.
+Возвращает PNG-изображение с QR-кодом, содержащим vCard 3.0.`
 
 Возвращает:
 ```json

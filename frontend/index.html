@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Генератор QR-кодов</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Генератор QR-кодов</h1>
+  </header>
+
+  <main class="layout">
+    <!-- Левая часть -->
+    <section class="form-section">
+      <div class="tab-row">
+        <button class="tab active" data-type="url">Ссылка</button>
+        <button class="tab" data-type="phone">Телефон</button>
+        <button class="tab" data-type="mail">E-mail</button>
+        <button class="tab" data-type="sms">SMS</button>
+        <button class="tab" data-type="vcard">Визитка</button>
+      </div>
+
+      <div id="formFields"></div>
+
+      <details class="style-block">
+        <summary>Настроить внешний вид</summary>
+        <div class="style-grid">
+          <label>Цвет QR:</label>
+          <div class="color-input">
+            <input type="color" id="fillColor" value="#000000" />
+            <span class="color-preview" id="fillPreview"></span>
+          </div>
+
+          <label>Цвет ключей:</label>
+          <div class="color-input">
+            <input type="color" id="finderColor" value="#000000" />
+            <span class="color-preview" id="finderPreview"></span>
+          </div>
+
+          <label>Фон:</label>
+          <div class="color-input">
+            <input type="color" id="bgColor" value="#FFFFFF" />
+            <span class="color-preview" id="bgPreview"></span>
+          </div>
+
+          <label>Размер, px:</label>
+          <input type="number" id="size" min="100" max="1024" value="512" />
+
+          <label>Рамка, px:</label>
+          <input type="number" id="border" min="0" max="32" value="8" />
+        </div>
+      </details>
+
+      <button id="generateBtn">Сгенерировать</button>
+    </section>
+
+    <!-- Правая часть -->
+    <section class="result-section">
+      <h2>Результат</h2>
+      <div id="qrResult" class="qr-container">
+        <p class="placeholder">QR появится здесь</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
