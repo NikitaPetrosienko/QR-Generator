@@ -87,6 +87,7 @@ vCard поддерживается всеми современными устр�
 
 ## Структура проекта
 
+```
 qr-service/
 ├── assets/
 │   └── logo.png              # Логотип АО «Зарубежнефть» для центра QR
@@ -107,20 +108,20 @@ qr-service/
 ├── requirements.txt          # Список зависимостей Python
 ├── Dockerfile                # Описание Docker-образа
 └── docker-compose.yml        # Композиция сервисов для запуска контейнера
-
+```
 ---
 
 ## Запуск через Docker
 
 ### Сборка образа
-\```bash
+```bash
 docker build -t qr-vcard-service:latest .
-\```
+```
 
 ### Запуск контейнера
-\```bash
+```bash
 docker-compose up --build
-\```
+```
 
 После старта:  
 - API доступно по адресу: **http://localhost:8000/vcard**  
@@ -130,18 +131,18 @@ docker-compose up --build
 
 ## Запуск вручную (локально)
 
-\```bash
+```bash
 pip install -r requirements.txt
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
-\```
+```
 
 ---
 
 ## Зависимости (`requirements.txt`)
 
-\```
+```
 fastapi
 uvicorn
 pillow
 qrcode
-\```
+```
