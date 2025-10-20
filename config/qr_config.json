@@ -1,6 +1,6 @@
 {
   "QR_SIZE": 512,
-  "QR_BORDER_PX": 5,     
+  "QR_BORDER_PX": 6,     
   "QR_FILL": "#009639",
   "QR_BG": "#FFFFFF",
   "QR_FINDER": "#EAAA00",

@@ -1,8 +1,3 @@
-"""
-qr_core.py — фиксированное построение QR без «автоматических» бордеров.
-Бордер теперь задаётся строго в пикселях и не зависит от содержимого.
-"""
-
 import hashlib
 import unicodedata
 import re
@@ -38,7 +33,7 @@ def style_signature(cfg: dict) -> str:
     ])
 
 
-# ==================== HTTP ====================
+# HTTP 
 
 def _safe_ascii_filename(name: str, default: str = "vcard_qr") -> str:
     base = unicodedata.normalize("NFKD", str(name or "")).encode("ascii", "ignore").decode("ascii")
@@ -60,7 +55,7 @@ def respond_fixed_png(request: Request, *, data_key: str, content: bytes, filena
     return Response(content=content, media_type="image/png", headers=headers)
 
 
-# ==================== ГЕНЕРАЦИЯ QR ====================
+# ГЕНЕРАЦИЯ QR 
 
 def _generate_qr_image_fixed(
     data: str,
@@ -85,9 +80,9 @@ def _generate_qr_image_fixed(
 
     modules = qr.modules_count
 
-    # размер одного модуля так, чтобы QR занял всю доступную область (минус бордер)
+    
     qr_area = size_px - 2 * border_px
-    box_size = qr_area / modules  # дробное, потом рескейлим точно
+    box_size = qr_area / modules 
     qr_img = qr.make_image(fill_color=fill, back_color=bg).convert("RGBA")
 
     # рескейлим QR ровно под нужный размер, чтобы убрать лишние поля
@@ -107,14 +102,10 @@ def _recolor_finders_precise(
     bg: str,
     offset=(0, 0)
 ):
-    """
-    Перекрашиваем три finder-паттерна (угловые квадраты) точно по месту.
-    Теперь работает корректно даже после рескейла QR.
-    """
+    
     draw = ImageDraw.Draw(img)
     offx, offy = offset
     total_size = img.width - 2 * offx
-    # фактический размер одного модуля после рескейла
     actual_box = total_size / modules
 
     def rect(mx, my, w, h, fill):

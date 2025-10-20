@@ -1,8 +1,3 @@
-"""
-Генерация QR-кода визитки (vCard 3.0) для iOS / Android.
-Основной и единственный эндпоинт: /vcard
-"""
-
 import os
 import re
 from fastapi import APIRouter, Query, Request
@@ -19,8 +14,6 @@ router = APIRouter()
 # Основной рабочий номер (можно задать через переменную окружения)
 VCARD_EXT_BASE = os.getenv("VCARD_EXT_BASE", "+74957486424")
 
-
-# ======== Вспомогательные функции ========
 
 def _v_escape(s: str) -> str:
     """Экранируем спецсимволы для vCard."""
@@ -59,7 +52,7 @@ def _extract_ext_from_work_short(work_short: str) -> str:
     return "".join(digits[-4:]) if digits else ""
 
 
-# ======== Основной эндпоинт ========
+# Основной эндпоинт
 
 @router.get("/vcard")
 def generate_vcard(
