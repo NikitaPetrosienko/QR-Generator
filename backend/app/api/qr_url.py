@@ -1,30 +1,22 @@
-"""
-qr_url.py — эндпойнт генерации QR-кода по URL-ссылке.
-Пример:
-POST /qr/url
-{
-  "url": "https://intranet.zn.ru/page?id=123",
-  "filename": "portal_link"
-}
-или
-GET /qr/url?data=https://intranet.zn.ru&page=id123
-"""
+import hashlib
+from typing import Optional
 
 from fastapi import APIRouter, Request, Query
 from pydantic import BaseModel, HttpUrl
-from typing import Optional
 
-from backend.app.core.qr_core import build_png_fixed_with_logo_and_finders
-from backend.app.core.qr_core import respond_fixed_png, style_signature
-from backend.app.config.config import load_all_config
-
-import hashlib
+from backend.app.core.qr_core import (
+    build_png_fixed_with_logo_and_finders,
+    respond_fixed_png,
+    style_signature,
+    FIXED_SIZE,
+    FIXED_BORDER,
+)
 
 router = APIRouter()
 
 
 # ============================================================
-# МОДЕЛИ ДАННЫХ
+# МОДЕЛЬ ДАННЫХ
 # ============================================================
 
 class UrlRequest(BaseModel):
@@ -34,47 +26,68 @@ class UrlRequest(BaseModel):
 
 
 # ============================================================
-# GET-ВАРИАНТ (удобно для <img src>)
+# GET /qr/url
 # ============================================================
 
 @router.get("/url")
-def generate_url_qr(
+def generate_url_qr_get(
     request: Request,
-    data: str = Query(...),
-    fill: str = Query("#000000"),
-    finder: str = Query("#000000"),
-    bg: str = Query("#FFFFFF"),
-    size: int = Query(512),
-    border: int = Query(8),
+    data: str = Query(..., description="Ссылка или произвольный текст для кодирования"),
+    fill: str = Query("#000000", description="Цвет QR"),
+    finder: str = Query("#000000", description="Цвет угловых квадратов"),
+    bg: str = Query("#FFFFFF", description="Цвет фона"),
 ):
+    if not data.strip():
+        raise HTTPException(status_code=400, detail="Поле data' обязательно к заполнению")
+    """
+    Генерация QR-кода для URL (GET).
+    Подходит для вставки в <img src="...">.
+    """
     png = build_png_fixed_with_logo_and_finders(
         data,
         fill=fill,
         finder=finder,
         bg=bg,
-        size=size,
-        border=border,
     )
-    key = "|".join([data, style_signature(locals())])
-    return respond_fixed_png(request, data_key=key, content=png, filename="qr_url")
+
+    style = {
+        "size": FIXED_SIZE,
+        "border": FIXED_BORDER,
+        "fill": fill,
+        "bg": bg,
+        "finder": finder,
+    }
+
+    etag_key = f"url|{data}|{style_signature(style)}"
+    return respond_fixed_png(request, data_key=etag_key, content=png, filename="qr_url")
 
 
 # ============================================================
-# POST-ВАРИАНТ (удобно для фронта)
+# POST /qr/url
 # ============================================================
 
 @router.post("/url")
 def generate_url_qr_post(request: Request, payload: UrlRequest):
-    """Генерация QR по ссылке (POST-запрос)."""
-    cfg = load_all_config()
+    """
+    Генерация QR-кода для URL (POST).
+    Удобно использовать из фронта (отправка JSON).
+    """
+    data = str(payload.url)
 
-    # URL для кодирования
-    data = payload.url
-
-    # Генерация изображения
     png_bytes = build_png_fixed_with_logo_and_finders(data)
 
-    # ETag для кэша
-    etag_key = hashlib.sha256(f"url={data}|{style_signature(cfg)}".encode()).hexdigest()
+    style = {
+        "size": FIXED_SIZE,
+        "border": FIXED_BORDER,
+        "fill": "#000000",
+        "bg": "#FFFFFF",
+        "finder": "#000000",
+    }
 
-    return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=payload.filename)
+    etag_key = hashlib.sha256(f"url|{data}|{style_signature(style)}".encode()).hexdigest()
+    return respond_fixed_png(
+        request,
+        data_key=etag_key,
+        content=png_bytes,
+        filename=payload.filename or "qr_url",
+    )

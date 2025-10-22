@@ -2,6 +2,7 @@ const tabs = document.querySelectorAll(".tab");
 const formFields = document.getElementById("formFields");
 const qrResult = document.getElementById("qrResult");
 const generateBtn = document.getElementById("generateBtn");
+const downloadBtn = document.getElementById("downloadBtn");
 
 let currentType = "url";
 
@@ -20,6 +21,8 @@ function renderForm(type) {
       <input id="to" type="email" placeholder="user@nestro.ru" />
       <label>Тема письма</label>
       <input id="subject" type="text" placeholder="Тема письма" />
+      <label>Текст письма</label>
+      <textarea id="body" rows="3" placeholder="Введите текст письма"></textarea>
     `,
     sms: `
       <label>Номер телефона</label>
@@ -67,14 +70,53 @@ tabs.forEach((tab) => {
 generateBtn.addEventListener("click", async () => {
   qrResult.innerHTML = `<p class="placeholder">⏳ Генерация QR-кода...</p>`;
 
-  // параметры кастомизации
+  // ===== ВАЛИДАЦИЯ ПОЛЕЙ =====
+const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+
+document.querySelectorAll("input, textarea").forEach((el) => {
+  el.addEventListener("input", () => (el.style.borderColor = ""));
+
+});
+let requiredFields = [];
+switch (currentType) {
+  case "url":
+    requiredFields = ["data"];
+    break;
+  case "phone":
+    requiredFields = ["data"];
+    break;
+  case "mail":
+    requiredFields = ["to"];
+    break;
+  case "sms":
+    requiredFields = ["phone", "text"];
+    break;
+  case "vcard":
+    requiredFields = ["fn"];
+    break;
+}
+
+let hasError = false;
+requiredFields.forEach((id) => {
+  const el = document.getElementById(id);
+  if (el && !getVal(id)) {
+    el.style.borderColor = "#e74c3c"; // красная рамка
+    hasError = true;
+  } else if (el) {
+    el.style.borderColor = ""; // сброс если исправили
+  }
+});
+
+if (hasError) {
+  qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Заполните обязательные поля!</p>`;
+  return;
+}
+
+
   const fill = document.getElementById("fillColor").value || "#000000";
   const finder = document.getElementById("finderColor").value || "#000000";
   const bg = document.getElementById("bgColor").value || "#FFFFFF";
-  const size = document.getElementById("size").value || 512;
-  const border = document.getElementById("border").value || 8;
 
-  // собираем URL запроса
   let url = "";
 
   switch (currentType) {
@@ -85,7 +127,8 @@ generateBtn.addEventListener("click", async () => {
       url = `/qr/phone?number=${encodeURIComponent(document.getElementById("data").value)}`;
       break;
     case "mail":
-      url = `/qr/mail?to=${encodeURIComponent(document.getElementById("to").value)}&subject=${encodeURIComponent(document.getElementById("subject").value)}`;
+      case "mail":
+  url = `/qr/mail?to=${encodeURIComponent(document.getElementById("to").value)}&subject=${encodeURIComponent(document.getElementById("subject").value)}&body=${encodeURIComponent(document.getElementById("body").value)}`;
       break;
     case "sms":
       url = `/qr/sms?phone=${encodeURIComponent(document.getElementById("phone").value)}&text=${encodeURIComponent(document.getElementById("text").value)}`;
@@ -98,18 +141,28 @@ generateBtn.addEventListener("click", async () => {
       break;
   }
 
-  // добавляем стили
-  url += `&fill=${encodeURIComponent(fill)}&finder=${encodeURIComponent(finder)}&bg=${encodeURIComponent(bg)}&size=${size}&border=${border}`;
+  // добавляем цветовую кастомизацию
+  url += `&fill=${encodeURIComponent(fill)}&finder=${encodeURIComponent(finder)}&bg=${encodeURIComponent(bg)}`;
 
-  // Создаём изображение и добавляем анимацию
   const img = new Image();
   img.src = url;
 
   img.onload = () => {
-    img.classList.add("visible");
-    qrResult.innerHTML = "";
-    qrResult.appendChild(img);
+  img.classList.add("visible");
+  qrResult.innerHTML = "";
+  qrResult.appendChild(img);
+
+  downloadBtn.disabled = false;
+  downloadBtn.onclick = () => {
+    const link = document.createElement("a");
+    link.href = img.src;
+    link.download = `qr_${currentType}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
+};
+
 
   img.onerror = () => {
     qrResult.innerHTML = `<p class="placeholder">Ошибка генерации QR</p>`;

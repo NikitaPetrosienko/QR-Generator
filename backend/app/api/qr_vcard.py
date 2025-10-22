@@ -1,29 +1,23 @@
-"""
-qr_vcard.py — генерация QR-кода визитки (vCard 3.0)
-Используется для обмена контактами на iOS / Android.
-Поддерживает GET (/vcard) и POST (/vcard) с кастомизацией.
-"""
-
+import os
+import re
 from typing import Optional
 from fastapi import APIRouter, Request, Query
 from pydantic import BaseModel
-import re
 
 from backend.app.core.qr_core import (
     build_png_fixed_with_logo_and_finders,
     respond_fixed_png,
     style_signature,
+    FIXED_SIZE,
+    FIXED_BORDER,
 )
 
 router = APIRouter()
 
+VCARD_EXT_BASE = os.getenv("VCARD_EXT_BASE", "+74957486424")
 
-# ============================================================
-# ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-# ============================================================
 
 def _v_escape(s: str) -> str:
-    """Экранируем спецсимволы для vCard."""
     if not s:
         return ""
     s = str(s)
@@ -32,8 +26,11 @@ def _v_escape(s: str) -> str:
     return s
 
 
+def _join_crlf(lines) -> str:
+    return "\r\n".join(lines)
+
+
 def _split_fio(fn: str):
-    """Разбиваем строку ФИО на (фамилия, имя, отчество)."""
     parts = re.split(r"\s+", (fn or "").strip())
     last = parts[0] if len(parts) >= 1 else ""
     first = parts[1] if len(parts) >= 2 else ""
@@ -41,17 +38,18 @@ def _split_fio(fn: str):
     return last, first, middle
 
 
-def _join_crlf(lines) -> str:
-    """Собираем строки карточки с CRLF (стандарт vCard)."""
-    return "\r\n".join(lines)
+def _norm_phone_display(p: str) -> str:
+    if not p:
+        return ""
+    return re.sub(r"[^0-9+\- (),]", "", str(p)).strip()
 
 
-# ============================================================
-# МОДЕЛЬ POST-ЗАПРОСА
-# ============================================================
+def _extract_ext_from_work_short(work_short: str) -> str:
+    digits = re.findall(r"\d", work_short or "")
+    return "".join(digits[-4:]) if digits else ""
+
 
 class VCardRequest(BaseModel):
-    """Тело POST-запроса для генерации vCard."""
     fn: str
     org: Optional[str] = ""
     title: Optional[str] = ""
@@ -60,33 +58,25 @@ class VCardRequest(BaseModel):
     mobile: Optional[str] = ""
     work_short: Optional[str] = ""
     filename: Optional[str] = "vcard_qr"
-    style: Optional[dict] = None  # {"fill":"#000","finder":"#000","bg":"#FFF","size":512,"border":8}
 
-
-# ============================================================
-# GET /vcard
-# ============================================================
 
 @router.get("/vcard")
 def generate_vcard_get(
     request: Request,
-    fn: str = Query(..., description="ФИО одной строкой"),
-    org: str = Query("", description="Организация"),
-    title: str = Query("", description="Должность"),
-    dept: str = Query("", description="Подразделение"),
-    email: str = Query("", description="Почта"),
-    mobile: str = Query("", description="Мобильный телефон"),
-    work_short: str = Query("", description="Короткий рабочий, например 002-8042"),
-    filename: str = Query("vcard_qr", description="Имя файла"),
-    # Кастомизация
-    fill: str = Query("#000000", description="Цвет QR"),
-    finder: str = Query("#000000", description="Цвет угловых квадратов"),
-    bg: str = Query("#FFFFFF", description="Цвет фона"),
-    size: int = Query(512, description="Размер изображения, px"),
-    border: int = Query(8, description="Отступ (рамка) вокруг QR, px"),
+    fn: str = Query(...),
+    org: str = Query(""),
+    title: str = Query(""),
+    dept: str = Query(""),
+    email: str = Query(""),
+    mobile: str = Query(""),
+    work_short: str = Query(""),
+    filename: str = Query("vcard_qr"),
+    fill: str = Query("#000000"),
+    finder: str = Query("#000000"),
+    bg: str = Query("#FFFFFF"),
 ):
-    """Генерация QR-кода с визиткой (GET)."""
-
+    if not fn.strip():
+        raise HTTPException(status_code=400, detail="Поле 'fn' обязательно к заполнению")
     last, first, middle = _split_fio(fn)
 
     lines = [
@@ -99,10 +89,20 @@ def generate_vcard_get(
 
     if email:
         lines.append(f"EMAIL;TYPE=INTERNET;TYPE=WORK;TYPE=pref:{_v_escape(email)}")
-    if mobile:
-        lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{_v_escape(mobile)}")
+
+    main_work = _norm_phone_display(VCARD_EXT_BASE)
+    ext = _extract_ext_from_work_short(work_short)
+    if main_work:
+        tel_line = _v_escape(main_work)
+        if ext:
+            tel_line += f",{_v_escape(ext)}"
+        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE;TYPE=pref:{tel_line}")
+
     if work_short:
-        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE:{_v_escape(work_short)}")
+        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE:{_v_escape(_norm_phone_display(work_short))}")
+
+    if mobile:
+        lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{_v_escape(_norm_phone_display(mobile))}")
 
     note_parts = []
     if org:
@@ -120,37 +120,18 @@ def generate_vcard_get(
 
     png_bytes = build_png_fixed_with_logo_and_finders(
         vcard_text,
-        size=size,
-        border=border,
         fill=fill,
         bg=bg,
         finder=finder,
     )
 
-    style = {"size": size, "border": border, "fill": fill, "bg": bg, "finder": finder}
-    etag_key = f"vcard|{fn}|{style_signature(style)}"
-
+    style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": fill, "bg": bg, "finder": finder}
+    etag_key = f"vcard|{fn}|{style_signature(style)}|extbase={VCARD_EXT_BASE}"
     return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=filename)
 
 
-# ============================================================
-# POST /vcard
-# ============================================================
-
 @router.post("/vcard")
 def generate_vcard_post(request: Request, payload: VCardRequest):
-    """Генерация QR-кода vCard (POST) с кастомизацией."""
-    # Базовый стиль (по умолчанию — ч/б)
-    style = {
-        "fill": "#000000",
-        "finder": "#000000",
-        "bg": "#FFFFFF",
-        "size": 512,
-        "border": 8,
-    }
-    if payload.style:
-        style.update({k: v for k, v in payload.style.items() if v is not None})
-
     last, first, middle = _split_fio(payload.fn)
 
     lines = [
@@ -163,10 +144,20 @@ def generate_vcard_post(request: Request, payload: VCardRequest):
 
     if payload.email:
         lines.append(f"EMAIL;TYPE=INTERNET;TYPE=WORK;TYPE=pref:{_v_escape(payload.email)}")
-    if payload.mobile:
-        lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{_v_escape(payload.mobile)}")
+
+    main_work = _norm_phone_display(VCARD_EXT_BASE)
+    ext = _extract_ext_from_work_short(payload.work_short)
+    if main_work:
+        tel_line = _v_escape(main_work)
+        if ext:
+            tel_line += f",{_v_escape(ext)}"
+        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE;TYPE=pref:{tel_line}")
+
     if payload.work_short:
-        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE:{_v_escape(payload.work_short)}")
+        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE:{_v_escape(_norm_phone_display(payload.work_short))}")
+
+    if payload.mobile:
+        lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{_v_escape(_norm_phone_display(payload.mobile))}")
 
     note_parts = []
     if payload.org:
@@ -184,12 +175,11 @@ def generate_vcard_post(request: Request, payload: VCardRequest):
 
     png_bytes = build_png_fixed_with_logo_and_finders(
         vcard_text,
-        size=int(style["size"]),
-        border=int(style["border"]),
-        fill=str(style["fill"]),
-        bg=str(style["bg"]),
-        finder=str(style["finder"]),
+        fill="#000000",
+        bg="#FFFFFF",
+        finder="#000000",
     )
 
-    etag_key = f"vcard|{payload.fn}|{style_signature(style)}"
+    style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": "#000000", "bg": "#FFFFFF", "finder": "#000000"}
+    etag_key = f"vcard|{payload.fn}|{style_signature(style)}|extbase={VCARD_EXT_BASE}"
     return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=payload.filename or "vcard_qr")

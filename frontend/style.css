@@ -269,3 +269,63 @@ footer {
     transform: translateY(0);
   }
 }
+
+/* === фикс: правая колонка статична === */
+.layout {
+  align-items: flex-start;
+}
+
+.result-section {
+  flex: 1 1 480px;
+  position: sticky;
+  top: 1rem;
+  align-self: flex-start;
+  height: fit-content;
+  min-height: 480px; /* фиксированная минимальная высота */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.qr-container {
+  flex: 1 0 auto;
+  width: 100%;
+  aspect-ratio: 1 / 1; /* всегда квадратный блок */
+  max-height: 480px; /* не больше визуально */
+}
+
+.download-btn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--green);
+  background: #fff;
+  color: var(--green);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.download-btn:hover:not(:disabled) {
+  background: var(--green);
+  color: #fff;
+  transform: scale(1.03);
+}
+
+.download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* чтобы при длинных формах справа блок не прыгал */
+@media (max-width: 1000px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .result-section {
+    position: static;
+    min-height: 400px;
+  }
+}

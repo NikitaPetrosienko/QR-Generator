@@ -22,7 +22,8 @@ from PIL import Image, ImageDraw
 import qrcode
 from qrcode.constants import ERROR_CORRECT_H
 
-
+FIXED_SIZE = 512
+FIXED_BORDER = 8
 # =========================
 # ВСПОМОГАТЕЛЬНЫЕ УТИЛИТЫ
 # =========================
@@ -185,11 +186,11 @@ def build_png_fixed_with_logo_and_finders(
 ) -> bytes:
     """
     Генерация PNG-изображения QR:
-      - фиксированный размер картинки (size x size)
-      - бордер в пикселях (border), а не в "модулях"
-      - перекраска finder-паттернов (угловые квадраты)
-    По умолчанию — классический Ч/Б QR без логотипа.
     """
+    # ЖЁСТКО ПРИНИМАЕМ ТОЛЬКО ФИКСИРОВАННЫЕ ЗНАЧЕНИЯ
+    size = FIXED_SIZE
+    border = FIXED_BORDER
+
     canvas, box, modules, offset = _compute_canvas_and_metrics(
         data, size=size, border_px=border, fill=fill, bg=bg
     )
