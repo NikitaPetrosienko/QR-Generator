@@ -53,26 +53,3 @@ def generate_mail_qr_get(
     style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": fill, "bg": bg, "finder": finder}
     etag_key = f"mail|{mailto}|{style_signature(style)}"
     return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=filename)
-
-
-@router.post("/mail")
-def generate_mail_qr_post(request: Request, payload: MailRequest):
-    mailto = f"mailto:{payload.to}"
-    params = []
-    if payload.subject:
-        params.append(f"subject={quote(payload.subject)}")
-    if payload.body:
-        params.append(f"body={quote(payload.body)}")
-    if params:
-        mailto += "?" + "&".join(params)
-
-    png_bytes = build_png_fixed_with_logo_and_finders(
-        mailto,
-        fill="#000000",
-        bg="#FFFFFF",
-        finder="#000000",
-    )
-
-    style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": "#000000", "bg": "#FFFFFF", "finder": "#000000"}
-    etag_key = f"mail|{mailto}|{style_signature(style)}"
-    return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=payload.filename or "qr_mail")

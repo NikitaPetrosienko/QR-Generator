@@ -27,6 +27,8 @@ def generate_phone_qr_get(
     finder: str = Query("#000000"),
     bg: str = Query("#FFFFFF"),
 ):
+    if not number.strip():
+        raise HTTPException(status_code=400, detail="Поле 'number' обязательно к заполнению")
     qr_data = f"TEL:{number}"
     png_bytes = build_png_fixed_with_logo_and_finders(
         qr_data,
@@ -37,17 +39,3 @@ def generate_phone_qr_get(
     style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": fill, "bg": bg, "finder": finder}
     etag_key = f"phone|{qr_data}|{style_signature(style)}"
     return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=filename)
-
-
-@router.post("/phone")
-def generate_phone_qr_post(request: Request, payload: PhoneRequest):
-    qr_data = f"TEL:{payload.phone}"
-    png_bytes = build_png_fixed_with_logo_and_finders(
-        qr_data,
-        fill="#000000",
-        bg="#FFFFFF",
-        finder="#000000",
-    )
-    style = {"size": FIXED_SIZE, "border": FIXED_BORDER, "fill": "#000000", "bg": "#FFFFFF", "finder": "#000000"}
-    etag_key = f"phone|{qr_data}|{style_signature(style)}"
-    return respond_fixed_png(request, data_key=etag_key, content=png_bytes, filename=payload.filename or "qr_phone")

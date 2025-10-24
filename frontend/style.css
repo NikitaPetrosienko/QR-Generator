@@ -1,6 +1,6 @@
 :root {
-  --green: #009639;
-  --yellow: #eaaa00;
+  --green: #00b15d;
+  --yellow: #FFB338;
   --gray-bg: #f6f6f7;
   --text: #222;
   --border: #ddd;
@@ -199,7 +199,7 @@ details summary {
 }
 
 #generateBtn:hover {
-  background: #00852c;
+  background: var(--yellow);
   transform: scale(1.03);
 }
 
