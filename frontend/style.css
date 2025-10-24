@@ -1,144 +1,156 @@
 :root {
-  --green: #00b15d;
+  --green: #00B15D;
   --yellow: #FFB338;
-  --gray-bg: #f6f6f7;
-  --text: #222;
-  --border: #ddd;
-  --radius: 12px;
-  --font: "Montserrat", sans-serif;
+  --text: #100821;
+  --border: #E0E0E0;
+  --bg-light: #FAFAFA;
+  --radius: 10px;
+  --font: "Roboto", sans-serif;
 }
 
-/* ====== базовые ====== */
-* {
-  box-sizing: border-box;
-}
-
+/* === базовые === */
+* { box-sizing: border-box; }
 body {
   font-family: var(--font);
-  background: var(--gray-bg);
+  background: #fff;
   color: var(--text);
   margin: 0;
   padding: 0;
-  line-height: 1.6;
-  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 {
-  font-weight: 600;
+.page-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 35px 50px;
 }
 
-a {
-  color: var(--green);
-  text-decoration: none;
-}
-
-/* ====== хедер ====== */
-header {
-  text-align: center;
-  padding: 2rem 1rem 1rem;
-  animation: fadeIn 0.8s ease;
-}
-
-header h1 {
-  font-size: 1.8rem;
-  color: var(--green);
-  margin-bottom: 0.25rem;
-}
-
-header p {
-  color: #555;
-  font-weight: 500;
-  font-size: 0.95rem;
-}
-
-/* ====== layout ====== */
-.layout {
+/* === заголовок === */
+.corp-header {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  max-width: 1200px;
-  margin: 0 auto 2rem;
-  padding: 0 1rem;
+  align-items: center;
+  margin-bottom: 25px;
 }
 
-/* ====== блоки ====== */
-.form-section,
-.result-section {
-  flex: 1 1 480px;
+.corp-title {
+  position: relative;
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 45px;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.corp-title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 8px;
+  height: 45px;
+  background-color: var(--yellow);
+  border-radius: 2px;
+}
+
+/* === контент === */
+.content {
+  display: grid;
+  grid-template-columns: 1fr 480px; /* увеличен правый блок */
+  gap: 40px;
+  align-items: flex-start;
+}
+
+/* === форма === */
+.form-section {
   background: #fff;
   border-radius: var(--radius);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem 2rem;
-  min-height: 400px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: slideUp 0.8s ease;
+  padding: 10px 0 0;
+  margin: 0;
 }
 
-.form-section:hover,
-.result-section:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-}
-
-/* ====== табы ====== */
+/* табы */
 .tab-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 25px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  padding-bottom: 3px;
 }
 
 .tab {
-  flex: 1;
-  padding: 0.7rem 0;
-  border: 1px solid var(--border);
-  background: #f0f0f0;
-  color: #333;
+  position: relative;
+  background: none;
+  border: none;
+  font-size: 17px;
   font-weight: 500;
+  color: var(--text);
   cursor: pointer;
-  border-radius: var(--radius);
-  transition: all 0.25s ease;
+  padding: 6px 0 10px;
+  transition: color 0.25s ease;
 }
 
-.tab:hover {
-  background: #e4e4e4;
-  transform: scale(1.02);
-}
-
-.tab.active {
+/* Базовая линия скрыта */
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
   background: var(--green);
-  color: #fff;
-  border-color: var(--green);
+  opacity: 0;                     /* заменили transform на opacity */
+  transition: opacity 0.25s ease;
 }
 
-/* ====== формы ====== */
-input,
-textarea {
+/* Ховер — только цвет */
+.tab:hover {
+  color: var(--green);
+}
+
+/* Активная вкладка — цвет + линия */
+.tab.active {
+  color: var(--green);
+}
+
+.tab.active::after {
+  opacity: 1;
+}
+
+
+/* === инпуты === */
+label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+input, textarea {
   width: 100%;
-  font-family: var(--font);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  padding: 0.7rem 0.9rem;
+  font-family: var(--font);
   font-size: 0.95rem;
   margin-bottom: 1rem;
-  transition: border 0.2s;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  max-width: 100%;
 }
 
-input:focus,
-textarea:focus {
-  outline: none;
+input:focus, textarea:focus {
   border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
+  outline: none;
 }
 
-/* ====== кастомизация ====== */
-details {
-  background: #fafafa;
-  border-radius: var(--radius);
-  padding: 0.6rem 1rem;
-  border: 1px solid var(--border);
-  margin-bottom: 1rem;
+/* сетка для парных полей */
+.double-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
+
+/* === блок кастомизации === */
 
 details summary {
   font-weight: 600;
@@ -146,12 +158,28 @@ details summary {
   user-select: none;
 }
 
+details {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.8rem 0.8rem;  /* было 0.6–1rem — теперь компактнее */
+  margin-bottom: 1rem;            /* меньше отступа снизу */
+}
+
 .style-grid {
   display: grid;
-  grid-template-columns: 140px 1fr;
-  gap: 0.8rem 1.2rem;
-  margin-top: 1rem;
+  grid-template-columns: 120px 1fr;  /* уменьшили левую колонку */
+  gap: 0.6rem 1rem;                  /* компактнее сетка */
+  margin-top: 0.6rem;
 }
+
+
+details summary {
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
 
 /* ====== новые цветовые контролы ====== */
 .color-input {
@@ -184,48 +212,63 @@ details summary {
   box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0, 150, 57, 0.25);
 }
 
-/* ====== кнопка ====== */
+/* === кнопка === */
 #generateBtn {
   background: var(--green);
   color: #fff;
   border: none;
   border-radius: var(--radius);
-  padding: 0.9rem 1.5rem;
+  padding: 0.9rem 1.2rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  width: 100%;
-  transition: background 0.25s ease, transform 0.25s ease;
+  transition: all 0.25s ease;
+  margin: 1.5rem auto 0;      /* центрируем */
+  display: block;             /* чтобы работал margin:auto */
+  width: fit-content;         /* кнопка под контент */
+  min-width: 550px;           /* можешь регулировать */
 }
+
 
 #generateBtn:hover {
   background: var(--yellow);
-  transform: scale(1.03);
+  box-shadow: 0 4px 12px rgba(0,177,93,0.25);
 }
 
-/* ====== результат ====== */
+/* === результат === */
+.result-section {
+  position: relative;
+  top: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  min-height: 520px;
+}
+
 .result-section h2 {
+  font-size: 18px;
+  font-weight: 700;
   margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 .qr-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 350px;
   background: #fafafa;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  position: relative;
-  overflow: hidden;
+  min-height: 380px;
+  margin-bottom: 1rem;
 }
 
 .qr-container img {
   max-width: 100%;
-  height: auto;
   opacity: 0;
-  transform: scale(0.95);
-  transition: all 0.5s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .qr-container img.visible {
@@ -233,69 +276,8 @@ details summary {
   transform: scale(1);
 }
 
-.placeholder {
-  color: #999;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
-/* ====== footer ====== */
-footer {
-  text-align: center;
-  padding: 1rem 0;
-  color: #666;
-  font-size: 0.85rem;
-}
-
-/* ====== анимации ====== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(25px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* === фикс: правая колонка статична === */
-.layout {
-  align-items: flex-start;
-}
-
-.result-section {
-  flex: 1 1 480px;
-  position: sticky;
-  top: 1rem;
-  align-self: flex-start;
-  height: fit-content;
-  min-height: 480px; /* фиксированная минимальная высота */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.qr-container {
-  flex: 1 0 auto;
-  width: 100%;
-  aspect-ratio: 1 / 1; /* всегда квадратный блок */
-  max-height: 480px; /* не больше визуально */
-}
-
+/* === кнопка скачать === */
 .download-btn {
-  margin-top: 1rem;
   width: 100%;
   padding: 0.8rem 1.5rem;
   border-radius: var(--radius);
@@ -310,22 +292,9 @@ footer {
 .download-btn:hover:not(:disabled) {
   background: var(--green);
   color: #fff;
-  transform: scale(1.03);
 }
 
 .download-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* чтобы при длинных формах справа блок не прыгал */
-@media (max-width: 1000px) {
-  .layout {
-    flex-direction: column;
-  }
-
-  .result-section {
-    position: static;
-    min-height: 400px;
-  }
 }
