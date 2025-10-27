@@ -55,7 +55,7 @@ body {
 /* === контент === */
 .content {
   display: grid;
-  grid-template-columns: 1fr 480px; /* увеличен правый блок */
+  grid-template-columns: 1fr 480px; 
   gap: 40px;
   align-items: flex-start;
 }
@@ -89,7 +89,6 @@ body {
   transition: color 0.25s ease;
 }
 
-/* Базовая линия скрыта */
 .tab::after {
   content: "";
   position: absolute;
@@ -98,16 +97,14 @@ body {
   bottom: -1px;
   height: 2px;
   background: var(--green);
-  opacity: 0;                     /* заменили transform на opacity */
+  opacity: 0;                     
   transition: opacity 0.25s ease;
 }
 
-/* Ховер — только цвет */
 .tab:hover {
   color: var(--green);
 }
 
-/* Активная вкладка — цвет + линия */
 .tab.active {
   color: var(--green);
 }
@@ -151,7 +148,6 @@ input:focus, textarea:focus {
 }
 
 /* === блок кастомизации === */
-
 details summary {
   font-weight: 600;
   cursor: pointer;
@@ -162,14 +158,14 @@ details {
   background: var(--bg-light);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 0.4rem 0.8rem 0.8rem;  /* было 0.6–1rem — теперь компактнее */
-  margin-bottom: 1rem;            /* меньше отступа снизу */
+  padding: 0.4rem 0.8rem 0.8rem;  
+  margin-bottom: 1rem;            
 }
 
 .style-grid {
   display: grid;
-  grid-template-columns: 120px 1fr;  /* уменьшили левую колонку */
-  gap: 0.6rem 1rem;                  /* компактнее сетка */
+  grid-template-columns: 120px 1fr;  
+  gap: 0.6rem 1rem;                  
   margin-top: 0.6rem;
 }
 
@@ -181,7 +177,6 @@ details summary {
 }
 
 
-/* ====== новые цветовые контролы ====== */
 .color-input {
   display: flex;
   align-items: center;
@@ -223,10 +218,10 @@ details summary {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
-  margin: 1.5rem auto 0;      /* центрируем */
-  display: block;             /* чтобы работал margin:auto */
-  width: fit-content;         /* кнопка под контент */
-  min-width: 550px;           /* можешь регулировать */
+  margin: 1.5rem auto 0;      
+  display: block;             
+  width: fit-content;         
+  min-width: 550px;           
 }
 
 

@@ -10,25 +10,18 @@ from PIL import Image, ImageDraw
 import qrcode
 from qrcode.constants import ERROR_CORRECT_H
 
-# =========================
-# КОНСТАНТЫ (дефолты)
-# =========================
+
 FIXED_SIZE = 512
 FIXED_BORDER = 8
 
 
-# =========================
-# ВСПОМОГАТЕЛЬНЫЕ УТИЛИТЫ
-# =========================
 def _safe_ascii_filename(name: str, default: str = "qr_code") -> str:
-    """Преобразуем имя файла в безопасное ASCII (убираем кириллицу и спецсимволы)."""
     base = unicodedata.normalize("NFKD", str(name or "")).encode("ascii", "ignore").decode("ascii")
     base = re.sub(r"[^A-Za-z0-9._-]+", "_", base).strip("._-")
     return base or default
 
 
 def style_signature(cfg: Dict) -> str:
-    """Детерминированная подпись стиля — для формирования ETag."""
     return "|".join([
         f"size={int(cfg.get('size', 512))}",
         f"border={int(cfg.get('border', 0))}",
@@ -46,12 +39,7 @@ def respond_fixed_png(
     content: bytes,
     filename: str,
 ) -> Response:
-    """
-    Отправляем PNG с правильными заголовками:
-    - ETag: для кеширования
-    - Cache-Control: public, immutable (1 год)
-    - Content-Disposition: inline (открыть в браузере)
-    """
+   
     etag = hashlib.sha256(data_key.encode("utf-8")).hexdigest()
 
     if request.headers.get("If-None-Match") == etag:
@@ -69,9 +57,6 @@ def respond_fixed_png(
     return Response(content=content, media_type="image/png", headers=headers)
 
 
-# =========================
-# НИЗКОУРОВНЕВАЯ СБОРКА (фиксированный border)
-# =========================
 def _generate_qr_image_fixed(
     data: str,
     *,
@@ -80,10 +65,7 @@ def _generate_qr_image_fixed(
     fill: str,
     bg: str,
 ) -> Tuple[Image.Image, int, int, Tuple[int, int]]:
-    """
-    Генерирует QR строго фиксированного размера и бордера.
-    Без «встроенных» модульных бордеров, всё подчинено size_px и border_px.
-    """
+   
     qr = qrcode.QRCode(
         version=None,
         error_correction=ERROR_CORRECT_H,
@@ -97,12 +79,11 @@ def _generate_qr_image_fixed(
     qr_area = size_px - 2 * border_px           # фактическая площадь под QR
     box_size = qr_area / modules                # сколько пикселей на один модуль
 
-    # Рендерим QR и рескейлим точно под целевой размер (без внутренних бордеров)
+    # Рендерим QR и рескейлим точно под целевой размер 
     qr_img = qr.make_image(fill_color=fill, back_color=bg).convert("RGBA")
     target_size = int(modules * box_size)
     qr_img = qr_img.resize((target_size, target_size), Image.NEAREST)
 
-    # Вклеиваем QR в канвас, строго с отступом border_px
     canvas = Image.new("RGBA", (size_px, size_px), bg)
     canvas.paste(qr_img, (border_px, border_px))
 
@@ -118,10 +99,7 @@ def _recolor_finders_precise(
     bg: str,
     offset: Tuple[int, int],
 ):
-    """
-    Точно перекрашиваем три finder-паттерна после рендера.
-    Расчёт идёт в пикселях по фактическому масштабу.
-    """
+  
     draw = ImageDraw.Draw(img)
     offx, offy = offset
     total_size = img.width - 2 * offx
@@ -140,9 +118,6 @@ def _recolor_finders_precise(
         rect(mx + 2, my + 2, 3, 3, color)
 
 
-# =========================
-# ПУБЛИЧНАЯ ФУНКЦИЯ
-# =========================
 def build_png_fixed_with_logo_and_finders(
     data: str,
     *,
@@ -152,11 +127,7 @@ def build_png_fixed_with_logo_and_finders(
     bg: str = "#FFFFFF",
     finder: str = "#000000",
 ) -> bytes:
-    """
-    Генерация PNG-изображения QR.
-    Параметры передаются явно из эндпойнтов.
-    """
-
+   
     # Валидация параметров
     size = max(128, min(int(size), 2048))
     border = max(0, min(int(border), size // 4))
