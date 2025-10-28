@@ -1,0 +1,22 @@
+# docker-compose.yml
+version: "3.9"
+
+services:
+  qr:
+    build: .
+    image: qr-service:latest
+    container_name: qr-service
+    environment:
+      # путь до JSON-конфига для режима context=lk
+      - QR_CONFIG_FILE=backend/app/config/qr_config.json
+      # базовый рабочий номер, если хочешь переопределить
+      - VCARD_EXT_BASE=+74957486424
+      # таймзона (опционально)
+      - TZ=Europe/Helsinki
+    ports:
+      - "8000:8000"
+    volumes:
+      # удобно для локальной разработки / хот-релоада
+      - ./:/app
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
