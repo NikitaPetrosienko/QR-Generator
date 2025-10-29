@@ -3,3 +3,4 @@ uvicorn[standard]==0.30.1
 gunicorn
 qrcode[pil]==7.4.2
 pillow
+python-multipart>=0.0.6,<1.0.0

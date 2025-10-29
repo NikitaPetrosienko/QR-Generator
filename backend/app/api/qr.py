@@ -2,8 +2,10 @@
 import os
 from typing import Optional
 from urllib.parse import quote
+from io import BytesIO
 
 from fastapi import APIRouter, Request, Query, HTTPException
+from PIL import Image  # для работы с in-memory логотипом (POST)
 
 from backend.app.core.http import respond_png
 from backend.app.core.style import QRStyle, vcard_ext_base_from_env_or_cfg
@@ -31,10 +33,8 @@ def _decode_header(val: str) -> str:
     if not val:
         return ""
     try:
-        # если кириллица закодирована как ISO-8859-1, перекодируем в UTF-8
         return val.encode("latin1").decode("utf-8")
     except Exception:
-        # если уже нормальная строка, просто возвращаем
         return val.strip()
 
 def _get_lk_profile(request: Request) -> dict:
@@ -51,11 +51,11 @@ def _get_lk_profile(request: Request) -> dict:
     }
 
 # -----------------------
-# ЕДИНЫЙ endpoint
+# ЕДИНЫЙ endpoint (GET/POST)
 # -----------------------
 
-@router.get("/qr")
-def generate_qr(
+@router.api_route("/qr", methods=["GET", "POST"])
+async def generate_qr(
     request: Request,
 
     # режим работы
@@ -64,13 +64,13 @@ def generate_qr(
     # тип QR (для совместимости оставляем общий роутер)
     type: Optional[str] = Query(None, description="url | phone | mail | sms | vcard"),
 
-    # визуальные параметры (ui-режим)
+    # визуальные параметры (ui-режим, GET)
     fill: str = Query("#000000"),
     finder: str = Query("#000000"),
     bg: str = Query("#FFFFFF"),
     filename: Optional[str] = Query(None),
 
-    # ДАННЫЕ ДЛЯ ОБЩЕГО КОНСТРУКТОРА (ui)
+    # ДАННЫЕ ДЛЯ ОБЩЕГО КОНСТРУКТОРА (ui, GET)
     data: Optional[str] = Query(None),          # url/text
     number: Optional[str] = Query(None),        # phone вариант 1
     phonenumber: Optional[str] = Query(None),   # phone вариант 2
@@ -80,7 +80,7 @@ def generate_qr(
     phone: Optional[str] = Query(None),         # sms
     text: Optional[str] = Query(None),
 
-    # ПОЛЯ vCard (ui-режим)
+    # ПОЛЯ vCard (ui-режим, GET)
     fn: Optional[str] = Query(None),
     org: Optional[str] = Query(""),
     dept: Optional[str] = Query(""),
@@ -89,6 +89,60 @@ def generate_qr(
     mobile: Optional[str] = Query(""),
     work_short: Optional[str] = Query(""),
 ):
+    """
+    GET:
+      - как было: context=ui (универсальный конструктор, без логотипа), context=lk (только vcard из конфига)
+    POST (multipart/form-data):
+      - только context=ui: поддержка пользовательского логотипа (поле 'logo')
+      - остальные параметры принимаются как текстовые поля формы
+    """
+    method = request.method.upper()
+
+    # Если это POST — достанем form и переопределим значения полей из формы
+    form = None
+    if method == "POST":
+        try:
+            form = await request.form()
+        except Exception:
+            raise HTTPException(status_code=400, detail="Некорректное тело запроса (ожидается form-data)")
+
+        # В LK-режиме POST не допускаем
+        ctx_raw = (form.get("context") or context or "ui")
+        if str(ctx_raw).lower() == "lk":
+            raise HTTPException(status_code=405, detail="POST запрещён для context=lk")
+
+        def _p(name: str, default: Optional[str] = None) -> Optional[str]:
+            v = form.get(name)
+            if v is None:
+                # fallback к query (если кто-то кинет смешанно)
+                return request.query_params.get(name, default)
+            return str(v).strip()
+
+        # Переопределяем значения из формы
+        context = _p("context", context or "ui")
+        type     = _p("type", type)
+        fill     = _p("fill", fill)
+        finder   = _p("finder", finder)
+        bg       = _p("bg", bg)
+        filename = _p("filename", filename)
+
+        data        = _p("data", data)
+        number      = _p("number", number)
+        phonenumber = _p("phonenumber", phonenumber)
+        to          = _p("to", to)
+        subject     = _p("subject", subject)
+        body        = _p("body", body)
+        phone       = _p("phone", phone)
+        text        = _p("text", text)
+
+        fn         = _p("fn", fn)
+        org        = _p("org", org)
+        dept       = _p("dept", dept)
+        title      = _p("title", title)
+        email      = _p("email", email)
+        mobile     = _p("mobile", mobile)
+        work_short = _p("work_short", work_short)
+
     # -----------------------
     # Определяем режим
     # -----------------------
@@ -97,31 +151,14 @@ def generate_qr(
         raise HTTPException(status_code=400, detail="context must be 'ui' or 'lk'")
 
     # -----------------------
-    # Определяем тип QR
+    # LK: фиксированный стиль из JSON и данные сотрудника с бэка
     # -----------------------
-    if not type:
-        # авто-детект как было
-        if fn: type = "vcard"
-        elif to: type = "mail"
-        elif phone and (text is not None): type = "sms"
-        elif (number or phonenumber): type = "phone"
-        elif data: type = "url"
-        else:
-            # если явно сказали context=lk, считаем type=vcard
-            if ctx == "lk":
-                type = "vcard"
-            else:
-                raise HTTPException(status_code=400, detail="Нужно указать type или поля для одного из типов")
-    type = type.lower().strip()
-
-    # -----------------------
-    # Ветвление по контексту
-    # -----------------------
-
-    # ====== LK: фиксированный стиль из JSON и данные сотрудника с бэка ======
     if ctx == "lk":
-        if type != "vcard":
+        if type and type.lower().strip() != "vcard":
             raise HTTPException(status_code=400, detail="В режиме 'lk' поддерживается только type=vcard")
+        if method == "POST":
+            # Подстраховка: мы уже вернули 405 выше, но оставим и тут
+            raise HTTPException(status_code=405, detail="POST запрещён для context=lk")
 
         cfg = load_all_config()                    # читает backend/app/config/qr_config.json
         style = QRStyle.from_config(cfg)           # бренд-цвета, логотип, EC и т.п.
@@ -144,12 +181,28 @@ def generate_qr(
 
         default_name = "vcard_qr"
         et_key = "|".join([payload, style_signature(style), f"extbase={ext_base}"])
-        png = render_qr_png(payload, style)
+        png = render_qr_png(payload, style)  # LK-логотип приходит из style.logo_path
         return respond_png(request, data_key=et_key, content=png, filename=(filename or default_name))
 
-    # ====== UI: как было (универсальный конструктор), логотип ОТКЛЮЧЕН ======
+    # -----------------------
+    # UI: универсальный конструктор
+    # -----------------------
+
+    # Определяем тип, если не указан явно
+    if not type:
+        if fn: type = "vcard"
+        elif to: type = "mail"
+        elif phone and (text is not None): type = "sms"
+        elif (number or phonenumber): type = "phone"
+        elif data: type = "url"
+        else:
+            raise HTTPException(status_code=400, detail="Нужно указать type или поля для одного из типов")
+    type = type.lower().strip()
+
+    # Стиль для UI — без логотипа в стиле (даже если он есть в конфиге)
     style = QRStyle(size=512, border=8, fill=fill, bg=bg, finder=finder, ec="H", logo_path=None, logo_ratio=0.0)
 
+    # Сборка payload + etag-ключа
     if type == "url":
         if not (data or "").strip():
             raise HTTPException(status_code=400, detail="Поле 'data' обязательно для url")
@@ -180,6 +233,7 @@ def generate_qr(
     elif type == "vcard":
         if not (fn or "").strip():
             raise HTTPException(status_code=400, detail="Поле 'fn' обязательно для vcard")
+        # Для UI vcard базу берём из ENV/дефолта, как раньше
         ext_base = vcard_ext_base_from_env_or_cfg({})
         payload = build_vcard_text(
             fn=fn, org=org, title=title, dept=dept, email=email, mobile=mobile, work_short=work_short, ext_base=ext_base
@@ -190,5 +244,38 @@ def generate_qr(
     else:
         raise HTTPException(status_code=400, detail="Unknown type")
 
-    png = render_qr_png(payload, style)
+    # -----------------------
+    # Рендер: GET (без лого) или POST (с пользовательским логотипом)
+    # -----------------------
+    user_logo_image = None
+    if method == "POST" and form is not None:
+        upload = form.get("logo")
+        if upload:
+            try:
+                # базовые проверки
+                content_type = getattr(upload, "content_type", "") or ""
+                if content_type.lower() != "image/png":
+                    raise HTTPException(status_code=400, detail="Логотип должен быть PNG (image/png)")
+
+                raw = await upload.read()
+                if not raw:
+                    raise HTTPException(status_code=400, detail="Файл логотипа пустой")
+                if len(raw) > 500 * 1024:
+                    raise HTTPException(status_code=400, detail="Размер логотипа должен быть ≤ 500 KB")
+
+                # открываем как Pillow Image
+                user_logo_image = Image.open(BytesIO(raw))
+                user_logo_image.load()  # прогружаем в память
+
+                # ограничим экстремальные размеры (пропорционально до 1024)
+                max_side = 1024
+                if user_logo_image.width > max_side or user_logo_image.height > max_side:
+                    user_logo_image.thumbnail((max_side, max_side), Image.LANCZOS)
+
+            except HTTPException:
+                raise
+            except Exception:
+                raise HTTPException(status_code=400, detail="Не удалось прочитать файл логотипа (PNG)")
+
+    png = render_qr_png(payload, style, logo_image=user_logo_image)
     return respond_png(request, data_key=et_key, content=png, filename=(filename or default_name))
