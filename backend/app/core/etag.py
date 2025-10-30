@@ -1,4 +1,3 @@
-# backend/app/core/etag.py
 import hashlib, os
 from backend.app.core.style import QRStyle
 

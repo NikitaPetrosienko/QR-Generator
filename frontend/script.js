@@ -1,23 +1,38 @@
-// frontend/script.js
-
 const API_URL = "/api/v1/qr";   // единый эндпойнт
 const SEND_TYPE = true;         // отправлять явный type
 
-// --- DOM ---
+// --- DOM (основные элементы) ---
 const tabs = document.querySelectorAll(".tab");
 const formFields = document.getElementById("formFields");
 const qrResult = document.getElementById("qrResult");
 const generateBtn = document.getElementById("generateBtn");
 const downloadBtn = document.getElementById("downloadBtn");
 
-// Brand presets & logo upload
-const swatchesWrap = document.getElementById("brandSwatches");
-const brandTargetRadios = document.querySelectorAll('input[name="brandTarget"]');
-const logoInput = document.getElementById("logoInput");
-const logoPreview = document.getElementById("logoPreview");
+// Цвета (пикеры/превью)
+const fillColor   = document.getElementById("fillColor");
+const finderColor = document.getElementById("finderColor");
+const bgColor     = document.getElementById("bgColor");
 
+const fillPreview   = document.getElementById("fillPreview");
+const finderPreview = document.getElementById("finderPreview");
+const bgPreview     = document.getElementById("bgPreview");
+
+// Селекты пресетов (могут отсутствовать в твоей вёрстке — это ок)
+const fillPreset   = document.getElementById("fillPreset");
+const finderPreset = document.getElementById("finderPreset");
+const bgPreset     = document.getElementById("bgPreset");
+
+// Блок «Фирменные цвета» (старый вариант с радиокнопками и свайчами)
+const brandTargetRadios = document.querySelectorAll('input[type="radio"][data-target], input[name="brandTarget"]');
+const swatches          = document.querySelectorAll('.swatches .swatch[data-hex]');
+
+// Логотип
+const logoInput   = document.getElementById("logoInput");
+const logoPreview = document.getElementById("logoPreview");
+const logoClearBtn = document.getElementById("logoClearBtn");
+
+// --- Тип формы (вкладки) ---
 let currentType = "url";
-let currentBrandTarget = "fill"; // 'fill' | 'finder' | 'bg'
 
 // ================== РЕНДЕР ФОРМЫ ПО ТИПУ ==================
 function renderForm(type) {
@@ -75,47 +90,26 @@ tabs.forEach((tab) => {
   });
 });
 
-// ================== ПРЕВЬЮ ЦВЕТОВ ==================
-["fill", "finder", "bg"].forEach((key) => {
-  const input = document.getElementById(`${key}Color`);
-  const preview = document.getElementById(`${key}Preview`);
-  input?.addEventListener("input", () => (preview.style.background = input.value));
-});
-
 // ================== УТИЛИТЫ ==================
 const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
 const setError = (el) => (el.style.borderColor = "#e74c3c");
 const clearError = (el) => (el.style.borderColor = "");
 
-function getColorInputEl(target) {
-  if (target === "fill")   return document.getElementById("fillColor");
-  if (target === "finder") return document.getElementById("finderColor");
-  return document.getElementById("bgColor");
+function hexNorm(v) {
+  const s = String(v || "").trim();
+  const h = s.startsWith("#") ? s.toUpperCase() : ("#" + s).toUpperCase();
+  // валидация #RRGGBB
+  return /^#[0-9A-F]{6}$/i.test(h) ? h : "#000000";
 }
-function getColorPreviewEl(target) {
-  if (target === "fill")   return document.getElementById("fillPreview");
-  if (target === "finder") return document.getElementById("finderPreview");
-  return document.getElementById("bgPreview");
+function isLogoSelected() {
+  return !!(logoInput && logoInput.files && logoInput.files.length > 0);
 }
-
-function applyBrandColor(hex, target) {
-  const input = getColorInputEl(target);
-  const preview = getColorPreviewEl(target);
-  if (!input || !preview) return;
-  input.value = hex;
-  preview.style.background = hex;
-}
-
 function buildQuery(params) {
   const sp = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => {
     if (v !== "" && v != null) sp.set(k, v);
   });
   return sp.toString();
-}
-
-function isLogoSelected() {
-  return !!(logoInput && logoInput.files && logoInput.files.length > 0);
 }
 
 function showResultImageFromUrl(url, downloadName) {
@@ -141,7 +135,6 @@ function showResultImageFromUrl(url, downloadName) {
   };
   img.src = url;
 }
-
 function showResultImageFromBlob(blob, downloadName) {
   const url = URL.createObjectURL(blob);
   showResultImageFromUrl(url, downloadName);
@@ -150,12 +143,11 @@ function showResultImageFromBlob(blob, downloadName) {
 // ================== ОБЯЗАТЕЛЬНЫЕ ПОЛЯ ==================
 const requiredByType = {
   url: ["data"],
-  phone: ["data"],      // в форме поле id="data", на бэк уйдёт как number
+  phone: ["data"],      // поле id="data", на бэк уйдёт как number
   mail: ["to"],
   sms: ["phone", "text"],
   vcard: ["fn"],
 };
-
 function validate(type) {
   let ok = true;
   (requiredByType[type] || []).forEach((id) => {
@@ -173,24 +165,156 @@ function validate(type) {
   return ok;
 }
 
+// ================== ПРЕСЕТЫ БРЕНДБУКА (для селектов) ==================
+const BRAND_PRESETS = [
+  { hex: "#009639", label: "Основной зелёный" },
+  { hex: "#EAAA00", label: "Основной жёлтый" },
+  { hex: "#9BBD1E", label: "Светло-зелёный" },
+  { hex: "#ED6E1C", label: "Оранжевый" },
+  { hex: "#0067B2", label: "Синий" },
+  { hex: "#FFFFFF", label: "Белый" },
+  { hex: "#0B6C31", label: "Тёмно-зелёный" },
+  { hex: "#00375F", label: "Глубокий синий" },
+  { hex: "#53565A", label: "Серый 1" },
+  { hex: "#E30613", label: "Красный" },
+];
+
+function matchPreset(hex) {
+  const H = hexNorm(hex);
+  const found = BRAND_PRESETS.find(p => p.hex === H);
+  return found ? found.hex : "__custom__";
+}
+
+// синхронизация: селект -> пикер/превью (если селекты присутствуют)
+function syncPresetToPicker(target) {
+  const select  = target === "fill" ? fillPreset : target === "finder" ? finderPreset : bgPreset;
+  const picker  = target === "fill" ? fillColor  : target === "finder" ? finderColor  : bgColor;
+  const preview = target === "fill" ? fillPreview : target === "finder" ? finderPreview : bgPreview;
+  if (!select || !picker || !preview) return;
+
+  const val = select.value;
+  if (val && val !== "__custom__") {
+    picker.value = hexNorm(val);
+    preview.style.background = picker.value;
+  }
+}
+
+// синхронизация: пикер -> селект/превью
+function syncPickerToPreset(target) {
+  const select  = target === "fill" ? fillPreset : target === "finder" ? finderPreset : bgPreset;
+  const picker  = target === "fill" ? fillColor  : target === "finder" ? finderColor  : bgColor;
+  const preview = target === "fill" ? fillPreview : target === "finder" ? finderPreview : bgPreview;
+  if (!picker || !preview) return;
+
+  const H = hexNorm(picker.value);
+  preview.style.background = H;
+  if (select) {
+    const matched = matchPreset(H);
+    const opt = Array.from(select.options).find(o => o.value === matched);
+    select.value = opt ? matched : "__custom__";
+  }
+}
+
+// helper: установить цвет в нужную цель (fill/finder/bg) и синхронизировать всё
+function setColorForTarget(target, hex) {
+  const picker  = target === "fill" ? fillColor  : target === "finder" ? finderColor  : bgColor;
+  if (!picker) return;
+  picker.value = hexNorm(hex);
+  syncPickerToPreset(target);
+}
+
+// Инициализация превью
+["fill", "finder", "bg"].forEach((t) => syncPickerToPreset(t));
+
+// Слушатели селектов (если они есть)
+fillPreset?.addEventListener("change", () => syncPresetToPicker("fill"));
+finderPreset?.addEventListener("change", () => syncPresetToPicker("finder"));
+bgPreset?.addEventListener("change", () => syncPresetToPicker("bg"));
+
+// Слушатели пикеров
+fillColor?.addEventListener("input", () => syncPickerToPreset("fill"));
+finderColor?.addEventListener("input", () => syncPickerToPreset("finder"));
+bgColor?.addEventListener("input", () => syncPickerToPreset("bg"));
+
+// Определяем выбранную цель (QR/Ключи/Фон) из радиокнопок старого блока
+function getSelectedBrandTarget() {
+  // поддержка обоих вариантов: data-target="fill|finder|bg" или value="fill|finder|bg"
+  const checked = Array.from(brandTargetRadios).find(r => r.checked);
+  if (!checked) return "fill";
+  return checked.dataset.target || checked.value || "fill";
+}
+// Клик по свайчу — применяем к выбранной цели
+swatches.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const hex = btn.dataset.hex;
+    if (!hex) return;
+    const target = getSelectedBrandTarget(); // fill/finder/bg
+    setColorForTarget(target, hex);
+  });
+});
+
+// ================== ЛОГОТИП: ПРЕДПРОСМОТР / ОЧИСТКА ==================
+if (logoInput) {
+  logoInput.addEventListener("change", () => {
+    if (!logoInput.files || logoInput.files.length === 0) {
+      logoPreview && (logoPreview.innerHTML = `<span class="placeholder">Превью</span>`);
+      return;
+    }
+    const file = logoInput.files[0];
+    if (file.type !== "image/png") {
+      qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Логотип должен быть PNG (image/png)</p>`;
+      logoInput.value = "";
+      logoPreview && (logoPreview.innerHTML = `<span class="placeholder">Превью</span>`);
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Размер логотипа должен быть ≤ 500 KB</p>`;
+      logoInput.value = "";
+      logoPreview && (logoPreview.innerHTML = `<span class="placeholder">Превью</span>`);
+      return;
+    }
+
+    // мини-превью
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        if (!logoPreview) return;
+        logoPreview.innerHTML = "";
+        img.style.maxWidth = "96px";
+        img.style.maxHeight = "96px";
+        img.style.borderRadius = "12px";
+        img.style.boxShadow = "0 1px 6px rgba(0,0,0,0.12)";
+        logoPreview.appendChild(img);
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+logoClearBtn?.addEventListener("click", () => {
+  if (logoInput) logoInput.value = "";
+  if (logoPreview) logoPreview.innerHTML = `<span class="placeholder">Превью</span>`;
+  // Следующая генерация пойдёт по GET
+});
+
 // ================== СБОР ПАРАМЕТРОВ ==================
 function collectParams(type) {
-  // базовые цвета
   const params = {
-    fill: getVal("fillColor") || "#000000",
-    finder: getVal("finderColor") || "#000000",
-    bg: getVal("bgColor") || "#FFFFFF",
-    t: Date.now().toString(), // бьём кеш браузера в превью (для GET)
+    fill:   hexNorm(fillColor?.value   || "#000000"),
+    finder: hexNorm(finderColor?.value || "#000000"),
+    bg:     hexNorm(bgColor?.value     || "#FFFFFF"),
+    t: Date.now().toString(), // бьём кеш браузера для превью
   };
 
-  if (SEND_TYPE) params.type = type; // явный тип (можно выключить)
+  if (SEND_TYPE) params.type = type;
 
   switch (type) {
     case "url":
       params.data = getVal("data");
       break;
     case "phone":
-      // в форме поле id="data", а на бэк ждём number
       params.number = getVal("data");
       break;
     case "mail":
@@ -210,65 +334,7 @@ function collectParams(type) {
       });
       break;
   }
-
   return params;
-}
-
-// ================== BRAND PRESETS ==================
-brandTargetRadios.forEach((r) => {
-  r.addEventListener("change", () => {
-    currentBrandTarget = r.value;
-  });
-});
-
-if (swatchesWrap) {
-  swatchesWrap.addEventListener("click", (e) => {
-    const btn = e.target.closest(".swatch");
-    if (!btn) return;
-    const hex = btn.getAttribute("data-hex");
-    if (!hex) return;
-    applyBrandColor(hex, currentBrandTarget);
-  });
-}
-
-// ================== ЛОГОТИП: ПРЕДПРОСМОТР И ПРЕ-ПРОВЕРКИ ==================
-if (logoInput) {
-  logoInput.addEventListener("change", () => {
-    if (!logoInput.files || logoInput.files.length === 0) {
-      logoPreview.innerHTML = `<span class="placeholder">Превью</span>`;
-      return;
-    }
-    const file = logoInput.files[0];
-    // простые клиентские проверки (совпадают с бэком)
-    if (file.type !== "image/png") {
-      qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Логотип должен быть PNG (image/png)</p>`;
-      logoInput.value = "";
-      logoPreview.innerHTML = `<span class="placeholder">Превью</span>`;
-      return;
-    }
-    if (file.size > 500 * 1024) {
-      qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Размер логотипа должен быть ≤ 500 KB</p>`;
-      logoInput.value = "";
-      logoPreview.innerHTML = `<span class="placeholder">Превью</span>`;
-      return;
-    }
-
-    // показать мини-превью
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        logoPreview.innerHTML = "";
-        img.style.maxWidth = "56px";
-        img.style.maxHeight = "56px";
-        img.style.borderRadius = "10px";
-        img.style.boxShadow = "0 1px 6px rgba(0,0,0,0.12)";
-        logoPreview.appendChild(img);
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
 }
 
 // ================== ГЕНЕРАЦИЯ ==================
@@ -283,10 +349,9 @@ generateBtn.addEventListener("click", async () => {
   const params = collectParams(currentType);
   const defaultName = `qr_${currentType}.png`;
 
-  // Если выбран логотип — отправляем POST multipart в тот же эндпойнт
+  // Если выбран логотип — POST multipart
   if (isLogoSelected()) {
     const fd = new FormData();
-    // базовые
     fd.set("context", "ui");
     if (SEND_TYPE) fd.set("type", currentType);
     fd.set("fill", params.fill);
@@ -318,10 +383,7 @@ generateBtn.addEventListener("click", async () => {
     fd.set("logo", file, file.name);
 
     try {
-      const resp = await fetch(API_URL, {
-        method: "POST",
-        body: fd,
-      });
+      const resp = await fetch(API_URL, { method: "POST", body: fd });
       if (!resp.ok) {
         const text = await resp.text().catch(() => "");
         qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Ошибка ${resp.status}: ${text || "генерации QR"}</p>`;
@@ -335,7 +397,7 @@ generateBtn.addEventListener("click", async () => {
       }
       const blob = await resp.blob();
       showResultImageFromBlob(blob, defaultName);
-    } catch (e) {
+    } catch {
       qrResult.innerHTML = `<p class="placeholder" style="color:#e74c3c;">Сетевая ошибка при генерации</p>`;
     }
     return;

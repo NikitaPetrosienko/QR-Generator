@@ -1,4 +1,3 @@
-# backend/app/core/vcard.py
 import re
 
 def v_escape(s: str) -> str:

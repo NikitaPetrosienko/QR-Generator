@@ -1,4 +1,3 @@
-# backend/app/core/http.py
 from fastapi import Request, Response
 import hashlib, re, unicodedata, urllib.parse
 

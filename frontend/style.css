@@ -1,3 +1,6 @@
+/* ==========================================================================
+   0) THEME TOKENS (CSS Variables)
+   ========================================================================== */
 :root {
   --green: #00B15D;
   --yellow: #FFB338;
@@ -8,8 +11,11 @@
   --font: "Roboto", sans-serif;
 }
 
-/* === базовые === */
+/* ==========================================================================
+   1) BASE RESET & GLOBALS
+   ========================================================================== */
 * { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
   font-family: var(--font);
   background: #fff;
@@ -18,20 +24,33 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
 }
+img { max-width: 100%; display: block; }
+button { font-family: inherit; }
+a { color: inherit; text-decoration: none; }
 
+/* ==========================================================================
+   2) PAGE WRAPPERS / LAYOUT
+   ========================================================================== */
 .page-container {
   max-width: 1360px;
   margin: 0 auto;
   padding: 35px 50px;
 }
+.content {
+  display: grid;
+  grid-template-columns: 1fr 480px; /* main | aside */
+  gap: 40px;
+  align-items: flex-start;
+}
 
-/* === заголовок === */
+/* ==========================================================================
+   3) HEADER (local page title)
+   ========================================================================== */
 .corp-header {
   display: flex;
   align-items: center;
   margin-bottom: 25px;
 }
-
 .corp-title {
   position: relative;
   font-size: 30px;
@@ -41,26 +60,17 @@ body {
   padding-left: 20px;
   margin: 0;
 }
-
 .corp-title::before {
   content: "";
-  position: absolute;
-  left: 0;
-  width: 8px;
-  height: 45px;
+  position: absolute; left: 0;
+  width: 8px; height: 45px;
   background-color: var(--yellow);
   border-radius: 2px;
 }
 
-/* === контент === */
-.content {
-  display: grid;
-  grid-template-columns: 1fr 480px; 
-  gap: 40px;
-  align-items: flex-start;
-}
-
-/* === форма === */
+/* ==========================================================================
+   4) FORM PANEL (left column)
+   ========================================================================== */
 .form-section {
   background: #fff;
   border-radius: var(--radius);
@@ -68,7 +78,7 @@ body {
   margin: 0;
 }
 
-/* табы */
+/* --- Tabs --- */
 .tab-row {
   display: flex;
   gap: 25px;
@@ -76,7 +86,6 @@ body {
   margin-bottom: 1.5rem;
   padding-bottom: 3px;
 }
-
 .tab {
   position: relative;
   background: none;
@@ -88,41 +97,24 @@ body {
   padding: 6px 0 10px;
   transition: color 0.25s ease;
 }
-
 .tab::after {
   content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2px;
-  background: var(--green);
-  opacity: 0;                     
-  transition: opacity 0.25s ease;
+  position: absolute; left: 0; right: 0; bottom: -1px;
+  height: 2px; background: var(--green);
+  opacity: 0; transition: opacity 0.25s ease;
 }
+.tab:hover { color: var(--green); }
+.tab.active { color: var(--green); }
+.tab.active::after { opacity: 1; }
 
-.tab:hover {
-  color: var(--green);
-}
-
-.tab.active {
-  color: var(--green);
-}
-
-.tab.active::after {
-  opacity: 1;
-}
-
-
-/* === инпуты === */
+/* --- Standard inputs (outside customization grid) --- */
 label {
   font-weight: 500;
   font-size: 0.9rem;
   margin-bottom: 0.3rem;
   display: block;
 }
-
-input, textarea {
+input, textarea, select {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -132,58 +124,47 @@ input, textarea {
   margin-bottom: 1rem;
   transition: border 0.2s ease, box-shadow 0.2s ease;
   max-width: 100%;
+  background: #fff;
 }
-
-input:focus, textarea:focus {
+input:focus, textarea:focus, select:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
   outline: none;
 }
 
-/* сетка для парных полей */
+/* --- Paired fields grid (where used in forms) --- */
 .double-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* === блок кастомизации === */
-details summary {
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-}
+/* ==========================================================================
+   5) CUSTOMIZATION BLOCK (details.style-block)
+      — ВЕСЬ UI кастомизации: 3 строки "цвет" + селектор пресетов, затем "логотип"
+   ========================================================================== */
 
-details {
-  background: var(--bg-light);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.4rem 0.8rem 0.8rem;  
-  margin-bottom: 1rem;            
-}
 
+/* (Legacy support) старый 2-колоночный блок — оставлен для обратной совместимости */
 .style-grid {
   display: grid;
-  grid-template-columns: 120px 1fr;  
-  gap: 0.6rem 1rem;                  
+  grid-template-columns: 120px 1fr;
+  gap: 0.6rem 1rem;
   margin-top: 0.6rem;
 }
 
-
-details summary {
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-}
+/* === НОВАЯ 3-КОЛОНОЧНАЯ СЕТКА КАСТОМИЗАЦИИ ===
+   label | color-picker(+preview) | preset-select
+   Добавлена повышенная специфичность, чтобы обойти глобальные отступы. */
 
 
-.color-input {
-  display: flex;
+/* --- Color picker + round preview --- */
+.picker-wrap {
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 10px;
 }
-
-.color-input input[type="color"] {
+.picker-wrap input[type="color"] {
   -webkit-appearance: none;
   appearance: none;
   border: none;
@@ -196,221 +177,66 @@ details summary {
   box-shadow: 0 0 0 1px var(--border), 0 2px 6px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-.color-input input[type="color"]::-webkit-color-swatch {
+.picker-wrap input[type="color"]::-webkit-color-swatch {
   border: none;
   border-radius: 10px;
 }
-
-.color-input input[type="color"]:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0, 150, 57, 0.25);
+.picker-wrap input[type="color"]:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0, 150, 57, 0.22);
 }
-
-/* === кнопка === */
-#generateBtn {
-  background: var(--green);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 0.9rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  margin: 1.5rem auto 0;      
-  display: block;             
-  width: fit-content;         
-  min-width: 550px;           
-}
-
-
-#generateBtn:hover {
-  background: var(--yellow);
-  box-shadow: 0 4px 12px rgba(0,177,93,0.25);
-}
-
-/* === результат === */
-.result-section {
-  position: relative;
-  top: 20px;
-  background: #fff;
+.color-preview {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  min-height: 520px;
 }
 
-.result-section h2 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.qr-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fafafa;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  min-height: 380px;
-  margin-bottom: 1rem;
-}
-
-.qr-container img {
-  max-width: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.qr-container img.visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* === кнопка скачать === */
-.download-btn {
+/* --- Preset select (брендбук) --- */
+.preset-select {
   width: 100%;
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--green);
+  min-width: 240px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+.preset-select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
+  outline: none;
+}
+
+/* --- Logo row: file input + clear button + big preview --- */
+.logo-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.logo-controls input[type="file"] { width: auto; }
+.btn-secondary {
   background: #fff;
   color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 10px;
+  height: 40px;
+  padding: 0 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
-
-.download-btn:hover:not(:disabled) {
+.btn-secondary:hover {
   background: var(--green);
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0,177,93,0.22);
 }
-
-.download-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ====== BRAND PRESETS & LOGO UPLOAD ====== */
-
-.brand-presets {
-  background: var(--bg-light);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.9rem 1rem 1rem;
-  margin-bottom: 1rem;
-}
-
-.brand-presets__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 0.8rem;
-}
-
-.brand-presets h3,
-.logo-upload h3 {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.3;
-  font-weight: 700;
-}
-
-.brand-target {
-  display: flex;
-  gap: 16px;
-  font-size: 0.92rem;
-  color: var(--text);
-}
-
-.brand-target label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.brand-target input[type="radio"] {
-  accent-color: var(--green);
-}
-
-.swatches {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 14px;
-}
-
-.swatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 6px 10px 6px 6px;
-  background: #fff;
-  cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.12s ease, border-color 0.2s ease;
-}
-
-.swatch:hover {
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-  transform: translateY(-1px);
-  border-color: #d6d6d6;
-}
-
-.swatch:active {
-  transform: translateY(0);
-}
-
-.swatch .swatch-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  display: inline-block;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
-}
-
-.swatch .swatch-name {
-  font-size: 0.85rem;
-  color: #5b5b5b;
-  letter-spacing: 0.2px;
-}
-
-.hint {
-  margin: 8px 0 0;
-  color: #7c7f85;
-  font-size: 0.85rem;
-}
-
-/* Logo upload */
-.logo-upload {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.9rem 1rem 1rem;
-  margin-bottom: 1.2rem;
-}
-
-.logo-upload__row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 8px;
-}
-
-#logoInput {
-  display: inline-block;
-  max-width: 100%;
-}
-
-.logo-preview {
-  width: 64px;
-  height: 64px;
+.logo-preview.big {
+  min-width: 96px;
+  min-height: 96px;
   border: 1px dashed var(--border);
   border-radius: 12px;
   background: var(--bg-light);
@@ -422,13 +248,263 @@ details summary {
   letter-spacing: 0.3px;
 }
 
-/* Responsive polish */
-@media (max-width: 980px) {
-  .brand-presets__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  #generateBtn {
-    min-width: 100%;
-  }
+/* --- Helper text under customization block --- */
+.hint {
+  margin: 8px 0 0;
+  color: #7c7f85;
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   6) ACTIONS (Generate/Download buttons)
+   ========================================================================== */
+#generateBtn {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.9rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin: 1.5rem auto 0;
+  display: block;
+  width: fit-content;
+  min-width: 550px;
+}
+#generateBtn:hover {
+  background: var(--yellow);
+  box-shadow: 0 4px 12px rgba(0,177,93,0.25);
+}
+
+.download-btn {
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--green);
+  background: #fff;
+  color: var(--green);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.download-btn:hover:not(:disabled) {
+  background: var(--green);
+  color: #fff;
+}
+.download-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   7) RESULT PANEL (right column)
+   ========================================================================== */
+.result-section {
+  position: relative;
+  top: 20px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  min-height: 520px;
+}
+.result-section h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+.qr-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  min-height: 380px;
+  margin-bottom: 1rem;
+}
+.qr-container img {
+  max-width: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.qr-container img.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ==========================================================================
+   8) RESPONSIVE
+   ========================================================================== */
+
+
+/* ==========================================================================
+   CUSTOMIZER (красивый блок кастомизации)
+   ========================================================================== */
+details.style-block .customizer{
+  --label-w: 160px;
+  --control-h: 42px;
+  --radius-lg: 12px;
+}
+
+/* Строки: label | controls (picker + select) */
+details.style-block .c-row{
+  display: grid;
+  grid-template-columns: var(--label-w) 1fr;
+  gap: 12px 16px;
+  align-items: center;
+  padding: 6px 0;
+}
+details.style-block .c-label{
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+details.style-block .c-controls{
+  display: grid;
+  grid-template-columns: auto minmax(240px, 320px);
+  gap: 14px;
+  align-items: center;
+}
+
+/* Пикер + превью */
+details.style-block .picker-wrap{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+details.style-block .picker-wrap input[type="color"]{
+  -webkit-appearance: none; appearance: none;
+  width: var(--control-h); height: var(--control-h);
+  border: none; border-radius: var(--radius-lg);
+  background: none; padding: 0;
+  box-shadow: 0 0 0 1px var(--border), 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+details.style-block .picker-wrap input[type="color"]::-webkit-color-swatch{
+  border: none; border-radius: calc(var(--radius-lg) - 2px);
+}
+details.style-block .picker-wrap input[type="color"]:hover{
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0,150,57,0.22);
+}
+details.style-block .color-preview{
+  width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
+}
+
+/* Select пресетов */
+details.style-block .preset-select{
+  height: var(--control-h);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 0 12px;
+  font-size: 0.95rem;
+  background: #fff;
+  transition: border .2s ease, box-shadow .2s ease;
+}
+details.style-block .preset-select:focus{
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
+  outline: none;
+}
+
+/* Разделители и заголовки подсекций */
+details.style-block .divider{
+  height: 1px; background: var(--border); margin: 14px 0;
+}
+details.style-block .subheader{
+  font-weight: 700; font-size: 1rem; margin: 4px 0 10px;
+}
+
+/* Segmented control (QR / Ключи / Фон) */
+details.style-block .segmented{
+  display: inline-grid;
+  grid-auto-flow: column;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px;
+  margin-bottom: 12px;
+}
+details.style-block .segmented input[type="radio"]{
+  position: absolute; opacity: 0; pointer-events: none;
+}
+details.style-block .segmented .seg{
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600; font-size: 0.92rem;
+  cursor: pointer; user-select: none;
+  color: #475569;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+details.style-block .segmented input[type="radio"]:checked + .seg{
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0,177,93,0.2);
+}
+
+/* Палитра свайчей */
+details.style-block .swatches{
+  display: flex; flex-wrap: wrap;
+  gap: 10px 12px; margin-bottom: 4px;
+}
+details.style-block .swatch{
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 999px; padding: 6px 10px 6px 6px;
+  font-size: 0.85rem; color: #5b5b5b; letter-spacing: .2px;
+  cursor: pointer; transition: box-shadow .2s ease, transform .1s ease, border-color .2s ease;
+}
+details.style-block .swatch:hover{
+  transform: translateY(-1px);
+  border-color: #d6d6d6;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+details.style-block .swatch .dot{
+  width: 20px; height: 20px; border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+  background: var(--c, #000);
+}
+
+/* Логотип */
+details.style-block .logo-row{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+details.style-block .logo-controls{
+  display: inline-flex; align-items: center; gap: 12px;
+}
+details.style-block .logo-controls input[type="file"]{ width: auto; }
+details.style-block .btn-secondary{
+  background: #fff; color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 10px; height: 40px; padding: 0 14px; font-weight: 600;
+  cursor: pointer; transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+details.style-block .btn-secondary:hover{
+  background: var(--green); color: #fff; box-shadow: 0 4px 12px rgba(0,177,93,0.22);
+}
+details.style-block .logo-preview.big{
+  min-width: 96px; min-height: 96px;
+  border: 1px dashed var(--border); border-radius: 12px;
+  background: var(--bg-light);
+  display: flex; align-items: center; justify-content: center;
+  color: #9aa0a6; font-size: 12px; letter-spacing: .3px;
+}
+
+/* Подсказка */
+details.style-block .hint{ margin: 6px 0 0; color: #7c7f85; font-size: 0.85rem; }
+
+/* Адаптив */
+@media (max-width: 980px){
+  details.style-block .c-row{ grid-template-columns: 1fr; }
+  details.style-block .c-controls{ grid-template-columns: 1fr; }
+  details.style-block .logo-row{ grid-template-columns: 1fr; }
 }

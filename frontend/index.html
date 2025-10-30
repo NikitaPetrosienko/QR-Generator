@@ -9,12 +9,12 @@
 </head>
 <body>
   <main class="page-container">
-    <!-- Локальный заголовок страницы (НЕ header, чтобы не конфликтовать с порталом) -->
+    <!-- Локальный заголовок страницы -->
     <div class="corp-header">
       <h1 class="corp-title">ГЕНЕРАТОР QR-КОДОВ</h1>
     </div>
 
-    <!-- Контент (грид на 2 колонки остаётся как был) -->
+    <!-- Контент -->
     <section class="content">
       <div class="form-section">
         <div class="tab-row">
@@ -27,89 +27,134 @@
 
         <div id="formFields"></div>
 
-        <details class="style-block">
-          <summary>Настроить внешний вид</summary>
-          <div class="style-grid">
-            <label>Цвет QR:</label>
-            <div class="color-input">
-              <input type="color" id="fillColor" value="#000000" />
-              <span class="color-preview" id="fillPreview"></span>
-            </div>
+        
+        <!-- ЕДИНЫЙ БЛОК КАСТОМИЗАЦИИ -->
+<details class="style-block" open>
+  <summary>Настроить внешний вид</summary>
 
-            <label>Цвет ключей:</label>
-            <div class="color-input">
-              <input type="color" id="finderColor" value="#000000" />
-              <span class="color-preview" id="finderPreview"></span>
-            </div>
+  <div class="customizer">
+    <!-- Ряд 1: Цвет QR -->
+    <div class="c-row">
+      <div class="c-label">Цвет QR</div>
+      <div class="c-controls">
+        <div class="picker-wrap">
+          <input type="color" id="fillColor" value="#000000" />
+          <span class="color-preview" id="fillPreview"></span>
+        </div>
+        <select id="fillPreset" class="preset-select" aria-label="Пресет цвета для QR">
+          <option value="" disabled selected>Выбрать из брендбука…</option>
+          <option value="#009639">Основной зелёный — #009639</option>
+          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
+          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
+          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
+          <option value="#0067B2">Синий — #0067B2</option>
+          <option value="#FFFFFF">Белый — #FFFFFF</option>
+          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
+          <option value="#00375F">Глубокий синий — #00375F</option>
+          <option value="#53565A">Серый 1 — #53565A</option>
+          <option value="#E30613">Красный — #E30613</option>
+          <option value="__custom__">Произвольный (кастом)</option>
+        </select>
+      </div>
+    </div>
 
-            <label>Фон:</label>
-            <div class="color-input">
-              <input type="color" id="bgColor" value="#FFFFFF" />
-              <span class="color-preview" id="bgPreview"></span>
-            </div>
-          </div>
-        </details>
+    <!-- Ряд 2: Цвет ключей -->
+    <div class="c-row">
+      <div class="c-label">Цвет ключей</div>
+      <div class="c-controls">
+        <div class="picker-wrap">
+          <input type="color" id="finderColor" value="#000000" />
+          <span class="color-preview" id="finderPreview"></span>
+        </div>
+        <select id="finderPreset" class="preset-select" aria-label="Пресет цвета для ключей">
+          <option value="" disabled selected>Выбрать из брендбука…</option>
+          <option value="#009639">Основной зелёный — #009639</option>
+          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
+          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
+          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
+          <option value="#0067B2">Синий — #0067B2</option>
+          <option value="#FFFFFF">Белый — #FFFFFF</option>
+          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
+          <option value="#00375F">Глубокий синий — #00375F</option>
+          <option value="#53565A">Серый 1 — #53565A</option>
+          <option value="#E30613">Красный — #E30613</option>
+          <option value="__custom__">Произвольный (кастом)</option>
+        </select>
+      </div>
+    </div>
 
-        <!-- Фирменные цвета (пресеты) -->
-        <section class="brand-presets" aria-labelledby="brandTitle">
-          <div class="brand-presets__header">
-            <h3 id="brandTitle">Фирменные цвета</h3>
-            <div class="brand-target" role="radiogroup" aria-label="Куда применить цвет">
-              <label><input type="radio" name="brandTarget" value="fill" checked> QR</label>
-              <label><input type="radio" name="brandTarget" value="finder"> Ключи</label>
-              <label><input type="radio" name="brandTarget" value="bg"> Фон</label>
-            </div>
-          </div>
+    <!-- Ряд 3: Фон -->
+    <div class="c-row">
+      <div class="c-label">Фон</div>
+      <div class="c-controls">
+        <div class="picker-wrap">
+          <input type="color" id="bgColor" value="#FFFFFF" />
+          <span class="color-preview" id="bgPreview"></span>
+        </div>
+        <select id="bgPreset" class="preset-select" aria-label="Пресет цвета для фона">
+          <option value="" disabled selected>Выбрать из брендбука…</option>
+          <option value="#009639">Основной зелёный — #009639</option>
+          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
+          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
+          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
+          <option value="#0067B2">Синий — #0067B2</option>
+          <option value="#FFFFFF">Белый — #FFFFFF</option>
+          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
+          <option value="#00375F">Глубокий синий — #00375F</option>
+          <option value="#53565A">Серый 1 — #53565A</option>
+          <option value="#E30613">Красный — #E30613</option>
+          <option value="__custom__">Произвольный (кастом)</option>
+        </select>
+      </div>
+    </div>
 
-          <!-- палитра пресетов (кнопки-свайчи с подписями) -->
-          <div class="swatches" id="brandSwatches">
-            <!-- Основные -->
-            <button class="swatch" data-hex="#009639" title="Основной зелёный">
-              <span class="swatch-dot" style="background:#009639"></span><span class="swatch-name">#009639</span>
-            </button>
-            <button class="swatch" data-hex="#EAAA00" title="Основной жёлтый">
-              <span class="swatch-dot" style="background:#EAAA00"></span><span class="swatch-name">#EAAA00</span>
-            </button>
-            <button class="swatch" data-hex="#9BBD1E" title="Светло-зелёный">
-              <span class="swatch-dot" style="background:#9BBD1E"></span><span class="swatch-name">#9BBD1E</span>
-            </button>
-            <button class="swatch" data-hex="#ED6E1C" title="Оранжевый">
-              <span class="swatch-dot" style="background:#ED6E1C"></span><span class="swatch-name">#ED6E1C</span>
-            </button>
-            <button class="swatch" data-hex="#0067B2" title="Синий">
-              <span class="swatch-dot" style="background:#0067B2"></span><span class="swatch-name">#0067B2</span>
-            </button>
-            <button class="swatch" data-hex="#FFFFFF" title="Белый">
-              <span class="swatch-dot" style="background:#FFFFFF;border:1px solid #E0E0E0"></span><span class="swatch-name">#FFFFFF</span>
-            </button>
-            <!-- Дополнительные -->
-            <button class="swatch" data-hex="#0B6C31" title="Тёмно-зелёный">
-              <span class="swatch-dot" style="background:#0B6C31"></span><span class="swatch-name">#0B6C31</span>
-            </button>
-            <button class="swatch" data-hex="#00375F" title="Глубокий синий">
-              <span class="swatch-dot" style="background:#00375F"></span><span class="swatch-name">#00375F</span>
-            </button>
-            <button class="swatch" data-hex="#53565A" title="Серый 1">
-              <span class="swatch-dot" style="background:#53565A"></span><span class="swatch-name">#53565A</span>
-            </button>
-            <button class="swatch" data-hex="#E30613" title="Красный">
-              <span class="swatch-dot" style="background:#E30613"></span><span class="swatch-name">#E30613</span>
-            </button>
-          </div>
-          <p class="hint">Нажмите на цвет, затем выберите, куда применить: QR, ключи или фон.</p>
-        </section>
+    <div class="divider"></div>
 
-        <!-- Загрузка логотипа -->
-        <section class="logo-upload" aria-labelledby="logoTitle">
-          <h3 id="logoTitle">Логотип (опционально)</h3>
-          <div class="logo-upload__row">
-            <input type="file" id="logoInput" accept="image/png" />
-            <div class="logo-preview" id="logoPreview" aria-label="Превью логотипа">
-              <span class="placeholder">Превью</span>
-            </div>
-          </div>
-          <p class="hint">PNG до 500&nbsp;KB, квадратная форма желательна. При загрузке логотипа генерация пойдёт через POST.</p>
-        </section>
+    <!-- Подсекция: Фирменные цвета (свайчи + сегмент-переключатель) -->
+    <div class="subheader">Фирменные цвета</div>
+    <div class="segmented" role="tablist" aria-label="Куда применить выбранный цвет">
+      <input type="radio" id="seg-fill" name="brandTarget" value="fill" data-target="fill" checked>
+      <label class="seg" for="seg-fill">QR</label>
+
+      <input type="radio" id="seg-finder" name="brandTarget" value="finder" data-target="finder">
+      <label class="seg" for="seg-finder">Ключи</label>
+
+      <input type="radio" id="seg-bg" name="brandTarget" value="bg" data-target="bg">
+      <label class="seg" for="seg-bg">Фон</label>
+    </div>
+
+    <div class="swatches" aria-label="Палитра брендбука">
+      <button class="swatch" data-hex="#009639" title="Основной зелёный"><span class="dot" style="--c:#009639"></span>#009639</button>
+      <button class="swatch" data-hex="#EAAA00" title="Основной жёлтый"><span class="dot" style="--c:#EAAA00"></span>#EAAA00</button>
+      <button class="swatch" data-hex="#9BBD1E" title="Светло-зелёный"><span class="dot" style="--c:#9BBD1E"></span>#9BBD1E</button>
+      <button class="swatch" data-hex="#ED6E1C" title="Оранжевый"><span class="dot" style="--c:#ED6E1C"></span>#ED6E1C</button>
+      <button class="swatch" data-hex="#0067B2" title="Синий"><span class="dot" style="--c:#0067B2"></span>#0067B2</button>
+      <button class="swatch" data-hex="#FFFFFF" title="Белый"><span class="dot" style="--c:#FFFFFF"></span>#FFFFFF</button>
+      <button class="swatch" data-hex="#0B6C31" title="Тёмно-зелёный"><span class="dot" style="--c:#0B6C31"></span>#0B6C31</button>
+      <button class="swatch" data-hex="#00375F" title="Глубокий синий"><span class="dot" style="--c:#00375F"></span>#00375F</button>
+      <button class="swatch" data-hex="#53565A" title="Серый 1"><span class="dot" style="--c:#53565A"></span>#53565A</button>
+      <button class="swatch" data-hex="#E30613" title="Красный"><span class="dot" style="--c:#E30613"></span>#E30613</button>
+    </div>
+
+    <p class="hint">Нажмите на цвет, затем выберите, куда применить: QR, ключи или фон.</p>
+
+    <div class="divider"></div>
+
+    <!-- Подсекция: Логотип -->
+    <div class="subheader">Логотип (опционально)</div>
+    <div class="logo-row">
+      <div class="logo-controls">
+        <input type="file" id="logoInput" accept="image/png" />
+        <button type="button" id="logoClearBtn" class="btn-secondary" aria-label="Очистить выбранный логотип">Очистить</button>
+      </div>
+      <div class="logo-preview big" id="logoPreview" aria-label="Превью логотипа">
+        <span class="placeholder">Превью</span>
+      </div>
+    </div>
+    <p class="hint">PNG до 500&nbsp;KB, квадратная форма желательна. Лишние прозрачные поля обрезаются автоматически.</p>
+  </div>
+</details>
+
 
         <button id="generateBtn">Сгенерировать</button>
       </div>

@@ -1,4 +1,3 @@
-# backend/app/config/config.py
 import json, os
 from pathlib import Path
 from typing import Dict, Any
@@ -7,10 +6,9 @@ from typing import Dict, Any
 DEFAULT_CONFIG_PATH = (Path(__file__).resolve().parent / "qr_config.json").as_posix()
 
 def load_all_config() -> Dict[str, Any]:
-    """
-    Читаем JSON КАЖДЫЙ запрос. Если файл битый/нет — {}.
-    Путь можно переопределить ENV переменной QR_CONFIG_FILE (относительный или абсолютный).
-    """
+
+    # Читаем JSON КАЖДЫЙ запрос. Если файл битый/нет — {}.
+    # Путь можно переопределить ENV переменной QR_CONFIG_FILE (относительный или абсолютный).
     env_path = os.getenv("QR_CONFIG_FILE")
     if env_path:
         p = Path(env_path)
