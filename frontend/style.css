@@ -132,7 +132,7 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-/* --- Paired fields grid (where used in forms) --- */
+/* --- Paired fields grid --- */
 .double-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -140,25 +140,97 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ==========================================================================
-   5) CUSTOMIZATION BLOCK (details.style-block)
-      — ВЕСЬ UI кастомизации: 3 строки "цвет" + селектор пресетов, затем "логотип"
+   5) DETAILS PANELS (both "Выберите цвета" и "Добавьте логотип")
    ========================================================================== */
-
-
-/* (Legacy support) старый 2-колоночный блок — оставлен для обратной совместимости */
-.style-grid {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 0.6rem 1rem;
-  margin-top: 0.6rem;
+details.style-block {
+  background: var(--bg-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  overflow: clip; /* для аккуратной анимации */
 }
 
-/* === НОВАЯ 3-КОЛОНОЧНАЯ СЕТКА КАСТОМИЗАЦИИ ===
-   label | color-picker(+preview) | preset-select
-   Добавлена повышенная специфичность, чтобы обойти глобальные отступы. */
+/* Красивый summary */
+details.style-block > summary {
+  position: relative;
+  padding: 12px 40px 12px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none; /* скрыть маркер */
+  user-select: none;
+  background: #fff;
+  border-radius: calc(var(--radius) - 1px);
+  transition: box-shadow .20s ease, border-color .20s ease, background .20s ease;
+  border: 1px solid var(--border);
+  margin: 6px 6px 0;
+}
+details.style-block > summary::-webkit-details-marker { display: none; }
+details.style-block > summary::after {
+  content: "";
+  position: absolute; right: 16px; top: 50%;
+  width: 10px; height: 10px;
+  border-right: 2px solid #9aa0a6;
+  border-bottom: 2px solid #9aa0a6;
+  transform: translateY(-50%) rotate(-45deg);
+  transition: transform .2s ease, border-color .2s ease;
+}
+details.style-block[open] > summary {
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  border-color: #dfe3e7;
+}
+details.style-block[open] > summary::after {
+  transform: translateY(-50%) rotate(45deg);
+  border-color: var(--green);
+}
 
+/* Плавная анимация тела details */
+details.style-block .customizer,
+details.style-block .logo-block {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: max-height .26s ease, opacity .22s ease, transform .26s ease, padding .2s ease;
+  padding: 0 12px;
+  overflow: hidden;
+}
+details.style-block[open] .customizer,
+details.style-block[open] .logo-block {
+  max-height: 1200px; /* достаточно для содержимого */
+  opacity: 1;
+  transform: translateY(0);
+  padding: 12px 12px 14px;
+}
 
-/* --- Color picker + round preview --- */
+/* Разделители и сабзаголовки внутри кастомизации */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 14px 0;
+}
+.subheader {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 4px 0 10px;
+}
+
+/* ==========================================================================
+   6) COLORS CUSTOMIZER (layout: label | color-picker | preset-select)
+   ========================================================================== */
+.customizer { }
+.style-grid-rows {
+  display: grid;
+  grid-template-columns: 160px auto minmax(260px, 360px); /* label | picker | select */
+  gap: 12px 16px;
+  align-items: center;
+}
+.style-grid-rows > label {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text);
+}
+
+/* --- Color picker --- */
 .picker-wrap {
   display: inline-flex;
   align-items: center;
@@ -168,9 +240,9 @@ input:focus, textarea:focus, select:focus {
   -webkit-appearance: none;
   appearance: none;
   border: none;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
   cursor: pointer;
   background: none;
   padding: 0;
@@ -179,30 +251,31 @@ input:focus, textarea:focus, select:focus {
 }
 .picker-wrap input[type="color"]::-webkit-color-swatch {
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 .picker-wrap input[type="color"]:hover {
-  transform: scale(1.06);
+  transform: scale(1.04);
   box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0, 150, 57, 0.22);
 }
-.color-preview {
-  display: inline-block;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-}
+/* скрываем старые мини-превью, если вдруг где-то остались */
+.color-preview { display: none !important; }
 
-/* --- Preset select (брендбук) --- */
+/* --- Preset select (с цветным чипом справа) --- */
 .preset-select {
-  width: 100%;
-  min-width: 240px;
-  height: 42px;
+  --sel-color: #000000; /* переопределяется inline из HTML/JS */
+  height: 48px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0 12px;
+  border-radius: 12px;
+  padding: 0 48px 0 12px;  /* справа место под чип + стрелку */
   font-size: 0.95rem;
   background: #fff;
+
+  /* цветной чип */
+  background-image: radial-gradient(circle at center, var(--sel-color) 55%, rgba(0,0,0,0) 56%);
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 18px 18px;
+
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 .preset-select:focus {
@@ -211,11 +284,15 @@ input:focus, textarea:focus, select:focus {
   outline: none;
 }
 
-/* --- Logo row: file input + clear button + big preview --- */
+/* ==========================================================================
+   7) LOGO PANEL
+   ========================================================================== */
+.logo-block { }
 .logo-controls {
   display: inline-flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 10px;
 }
 .logo-controls input[type="file"] { width: auto; }
 .btn-secondary {
@@ -247,8 +324,6 @@ input:focus, textarea:focus, select:focus {
   font-size: 12px;
   letter-spacing: 0.3px;
 }
-
-/* --- Helper text under customization block --- */
 .hint {
   margin: 8px 0 0;
   color: #7c7f85;
@@ -256,7 +331,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ==========================================================================
-   6) ACTIONS (Generate/Download buttons)
+   8) ACTIONS (Generate/Download buttons)
    ========================================================================== */
 #generateBtn {
   background: var(--green);
@@ -277,7 +352,6 @@ input:focus, textarea:focus, select:focus {
   background: var(--yellow);
   box-shadow: 0 4px 12px rgba(0,177,93,0.25);
 }
-
 .download-btn {
   width: 100%;
   padding: 0.8rem 1.5rem;
@@ -299,7 +373,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ==========================================================================
-   7) RESULT PANEL (right column)
+   9) RESULT PANEL (right column)
    ========================================================================== */
 .result-section {
   position: relative;
@@ -338,173 +412,163 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ==========================================================================
-   8) RESPONSIVE
+   10) RESPONSIVE
    ========================================================================== */
-
+@media (max-width: 980px) {
+  .content { grid-template-columns: 1fr; }
+  .style-grid-rows { grid-template-columns: 1fr; }
+  #generateBtn { min-width: 100%; }
+}
 
 /* ==========================================================================
-   CUSTOMIZER (красивый блок кастомизации)
+   11) Custom color-select (cs)
    ========================================================================== */
-details.style-block .customizer{
-  --label-w: 160px;
-  --control-h: 42px;
-  --radius-lg: 12px;
-}
-
-/* Строки: label | controls (picker + select) */
-details.style-block .c-row{
+.cs { position: relative; }
+.cs__trigger{
   display: grid;
-  grid-template-columns: var(--label-w) 1fr;
-  gap: 12px 16px;
-  align-items: center;
-  padding: 6px 0;
-}
-details.style-block .c-label{
-  font-weight: 600;
-  font-size: 0.95rem;
-}
-details.style-block .c-controls{
-  display: grid;
-  grid-template-columns: auto minmax(240px, 320px);
-  gap: 14px;
-  align-items: center;
-}
-
-/* Пикер + превью */
-details.style-block .picker-wrap{
-  display: inline-flex;
+  grid-template-columns: 24px 1fr;
   align-items: center;
   gap: 10px;
-}
-details.style-block .picker-wrap input[type="color"]{
-  -webkit-appearance: none; appearance: none;
-  width: var(--control-h); height: var(--control-h);
-  border: none; border-radius: var(--radius-lg);
-  background: none; padding: 0;
-  box-shadow: 0 0 0 1px var(--border), 0 2px 6px rgba(0,0,0,0.08);
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-details.style-block .picker-wrap input[type="color"]::-webkit-color-swatch{
-  border: none; border-radius: calc(var(--radius-lg) - 2px);
-}
-details.style-block .picker-wrap input[type="color"]:hover{
-  transform: scale(1.05);
-  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0,150,57,0.22);
-}
-details.style-block .color-preview{
-  width: 28px; height: 28px; border-radius: 999px; border: 1px solid var(--border);
-}
-
-/* Select пресетов */
-details.style-block .preset-select{
-  height: var(--control-h);
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 0 12px;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
   font-size: 0.95rem;
-  background: #fff;
-  transition: border .2s ease, box-shadow .2s ease;
 }
-details.style-block .preset-select:focus{
-  border-color: var(--green);
+.cs__trigger[aria-expanded="true"]{
   box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
-  outline: none;
+  border-color: var(--green);
 }
-
-/* Разделители и заголовки подсекций */
-details.style-block .divider{
-  height: 1px; background: var(--border); margin: 14px 0;
-}
-details.style-block .subheader{
-  font-weight: 700; font-size: 1rem; margin: 4px 0 10px;
-}
-
-/* Segmented control (QR / Ключи / Фон) */
-details.style-block .segmented{
-  display: inline-grid;
-  grid-auto-flow: column;
-  gap: 8px;
-  background: #fff;
-  border: 1px solid var(--border);
+.cs__dot{
+  width: 18px; height: 18px;
   border-radius: 999px;
-  padding: 6px;
-  margin-bottom: 12px;
-}
-details.style-block .segmented input[type="radio"]{
-  position: absolute; opacity: 0; pointer-events: none;
-}
-details.style-block .segmented .seg{
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-weight: 600; font-size: 0.92rem;
-  cursor: pointer; user-select: none;
-  color: #475569;
-  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
-}
-details.style-block .segmented input[type="radio"]:checked + .seg{
-  background: var(--green);
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0,177,93,0.2);
-}
-
-/* Палитра свайчей */
-details.style-block .swatches{
-  display: flex; flex-wrap: wrap;
-  gap: 10px 12px; margin-bottom: 4px;
-}
-details.style-block .swatch{
-  display: inline-flex; align-items: center; gap: 8px;
-  border: 1px solid var(--border);
-  background: #fff;
-  border-radius: 999px; padding: 6px 10px 6px 6px;
-  font-size: 0.85rem; color: #5b5b5b; letter-spacing: .2px;
-  cursor: pointer; transition: box-shadow .2s ease, transform .1s ease, border-color .2s ease;
-}
-details.style-block .swatch:hover{
-  transform: translateY(-1px);
-  border-color: #d6d6d6;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-details.style-block .swatch .dot{
-  width: 20px; height: 20px; border-radius: 999px;
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
   background: var(--c, #000);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
 }
-
-/* Логотип */
-details.style-block .logo-row{
+.cs__dot--custom{ background: linear-gradient(45deg,#ccc 0,#eee 100%); }
+.cs__menu{
+  position: absolute; z-index: 20;
+  left: 0; right: 0; top: calc(100% + 6px);
+  background: #fff; border: 1px solid var(--border);
+  border-radius: 12px; padding: 6px; max-height: 260px; overflow: auto;
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+}
+.cs__menu[aria-hidden="true"]{ display: none; }
+.cs__item{
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 16px;
+  grid-template-columns: 24px 1fr;
   align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
 }
-details.style-block .logo-controls{
-  display: inline-flex; align-items: center; gap: 12px;
+.cs__item:hover{ background: #f4f6f8; }
+
+/* ==========================================================================
+   12) Готовые стили (кнопки)
+   ========================================================================== */
+.theme-cards{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-top: 6px;
 }
-details.style-block .logo-controls input[type="file"]{ width: auto; }
-details.style-block .btn-secondary{
-  background: #fff; color: var(--green);
-  border: 1px solid var(--green);
-  border-radius: 10px; height: 40px; padding: 0 14px; font-weight: 600;
-  cursor: pointer; transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+.theme-card{
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .20s ease, box-shadow .20s ease, transform .06s ease;
 }
-details.style-block .btn-secondary:hover{
-  background: var(--green); color: #fff; box-shadow: 0 4px 12px rgba(0,177,93,0.22);
+.theme-card:hover{
+  border-color: #d9dde1;
+  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  transform: translateY(-1px);
 }
-details.style-block .logo-preview.big{
-  min-width: 96px; min-height: 96px;
-  border: 1px dashed var(--border); border-radius: 12px;
-  background: var(--bg-light);
-  display: flex; align-items: center; justify-content: center;
-  color: #9aa0a6; font-size: 12px; letter-spacing: .3px;
+.theme-card.is-active{
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(0,177,93,.15);
+}
+.theme-title{ font-weight: 600; }
+.theme-dots i{
+  display: inline-block;
+  width: 14px; height: 14px;
+  border-radius: 999px;
+  background: var(--c);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
+  margin-left: 6px;
+}
+/* === Details: современный вид без двойной рамки === */
+details.style-block{
+  border: none;
+  background: transparent;
+  margin: 14px 0;
+  padding: 0;
+  overflow: clip; /* аккуратное скрытие при анимации */
+}
+details.style-block > summary{
+  display: block;
+  margin: 0;
+  padding: 16px 52px 16px 20px;
+  background: #fff;
+  border: 1px solid #E6E8EB;            /* тоньше и светлее */
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  box-shadow: 0 1px 2px rgba(16,24,40,.04);
+  transition: box-shadow .25s ease, border-color .25s ease, background .25s ease;
+}
+details.style-block > summary::-webkit-details-marker{ display:none; }
+details.style-block > summary::after{
+  content:"";
+  position:absolute; right:18px; top:50%;
+  width:10px; height:10px;
+  border-right:2px solid #9aa0a6;
+  border-bottom:2px solid #9aa0a6;
+  transform: translateY(-50%) rotate(-45deg);
+  transition: transform .25s ease, border-color .25s ease;
+}
+details.style-block[open] > summary{
+  border-color:#D6EDE2;
+  box-shadow: 0 8px 24px rgba(16,24,40,.08);
+}
+details.style-block[open] > summary::after{
+  transform: translateY(-50%) rotate(45deg);
+  border-color: var(--green);
 }
 
-/* Подсказка */
-details.style-block .hint{ margin: 6px 0 0; color: #7c7f85; font-size: 0.85rem; }
+/* === Тело details: плавная анимация (высота + прозрачность) === */
+details.style-block .customizer,
+details.style-block .logo-block{
+  height: 0;                /* управляет JS */
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 12px;          /* внутренние поля появятся при открытии */
+}
+details.style-block .is-animating{
+  will-change: height, opacity;
+  transition:
+    height 360ms cubic-bezier(0.22,1,0.36,1),
+    opacity 280ms ease;
+}
+details.style-block[open] .customizer,
+details.style-block[open] .logo-block{
+  /* итоговое состояние выставит JS: height:auto; opacity:1; */
+  padding: 12px 12px 14px;
+}
 
-/* Адаптив */
-@media (max-width: 980px){
-  details.style-block .c-row{ grid-template-columns: 1fr; }
-  details.style-block .c-controls{ grid-template-columns: 1fr; }
-  details.style-block .logo-row{ grid-template-columns: 1fr; }
+/* уважение к users with reduced motion */
+@media (prefers-reduced-motion: reduce){
+  details.style-block .is-animating{ transition: none; }
 }

@@ -9,13 +9,12 @@
 </head>
 <body>
   <main class="page-container">
-    <!-- Локальный заголовок страницы -->
     <div class="corp-header">
       <h1 class="corp-title">ГЕНЕРАТОР QR-КОДОВ</h1>
     </div>
 
-    <!-- Контент -->
     <section class="content">
+      <!-- Левая колонка -->
       <div class="form-section">
         <div class="tab-row">
           <button class="tab active" data-type="url">Ссылка</button>
@@ -27,138 +26,181 @@
 
         <div id="formFields"></div>
 
-        
-        <!-- ЕДИНЫЙ БЛОК КАСТОМИЗАЦИИ -->
-<details class="style-block" open>
-  <summary>Настроить внешний вид</summary>
+        <!-- ==================== КАСТОМИЗАЦИЯ ЦВЕТОВ ==================== -->
+        <details class="style-block is-collapsible" data-animate>
+          <summary>Выберите цвета</summary>
+          <div class="customizer details-body">
+            <div class="style-grid-rows">
+              <!-- Цвет QR -->
+              <label for="fillColor">Цвет QR</label>
+              <div class="picker-wrap">
+                <input type="color" id="fillColor" value="#000000">
+              </div>
 
-  <div class="customizer">
-    <!-- Ряд 1: Цвет QR -->
-    <div class="c-row">
-      <div class="c-label">Цвет QR</div>
-      <div class="c-controls">
-        <div class="picker-wrap">
-          <input type="color" id="fillColor" value="#000000" />
-          <span class="color-preview" id="fillPreview"></span>
-        </div>
-        <select id="fillPreset" class="preset-select" aria-label="Пресет цвета для QR">
-          <option value="" disabled selected>Выбрать из брендбука…</option>
-          <option value="#009639">Основной зелёный — #009639</option>
-          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
-          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
-          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
-          <option value="#0067B2">Синий — #0067B2</option>
-          <option value="#FFFFFF">Белый — #FFFFFF</option>
-          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
-          <option value="#00375F">Глубокий синий — #00375F</option>
-          <option value="#53565A">Серый 1 — #53565A</option>
-          <option value="#E30613">Красный — #E30613</option>
-          <option value="__custom__">Произвольный (кастом)</option>
-        </select>
-      </div>
-    </div>
+              <!-- скрытый системный select для совместимости с твоим script.js -->
+              <select id="fillPreset" class="preset-select" hidden>
+                <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#009639">Основной зелёный</option>
+                <option value="#EAAA00">Основной жёлтый</option>
+                <option value="#9BBD1E">Светло-зелёный</option>
+                <option value="#ED6E1C">Оранжевый</option>
+                <option value="#0067B2">Синий</option>
+                <option value="#FFFFFF">Белый</option>
+                <option value="#0B6C31">Тёмно-зелёный</option>
+                <option value="#00375F">Глубокий синий</option>
+                <option value="#53565A">Серый 1</option>
+                <option value="#E30613">Красный</option>
+                <option value="__custom__">Произвольный</option>
+              </select>
 
-    <!-- Ряд 2: Цвет ключей -->
-    <div class="c-row">
-      <div class="c-label">Цвет ключей</div>
-      <div class="c-controls">
-        <div class="picker-wrap">
-          <input type="color" id="finderColor" value="#000000" />
-          <span class="color-preview" id="finderPreview"></span>
-        </div>
-        <select id="finderPreset" class="preset-select" aria-label="Пресет цвета для ключей">
-          <option value="" disabled selected>Выбрать из брендбука…</option>
-          <option value="#009639">Основной зелёный — #009639</option>
-          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
-          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
-          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
-          <option value="#0067B2">Синий — #0067B2</option>
-          <option value="#FFFFFF">Белый — #FFFFFF</option>
-          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
-          <option value="#00375F">Глубокий синий — #00375F</option>
-          <option value="#53565A">Серый 1 — #53565A</option>
-          <option value="#E30613">Красный — #E30613</option>
-          <option value="__custom__">Произвольный (кастом)</option>
-        </select>
-      </div>
-    </div>
+              <!-- кастомный дропдаун с цветными чипами -->
+              <div class="cs" data-for="fill">
+                <button type="button" class="cs__trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="cs__dot" style="--c:#000000"></span>
+                  <span class="cs__label">Произвольный</span>
+                </button>
+                <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
+                  <li class="cs__item" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
+                  <li class="cs__item" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
+                  <li class="cs__item" data-value="#ED6E1C"><span class="cs__dot" style="--c:#ED6E1C"></span>Оранжевый</li>
+                  <li class="cs__item" data-value="#0067B2"><span class="cs__dot" style="--c:#0067B2"></span>Синий</li>
+                  <li class="cs__item" data-value="#FFFFFF"><span class="cs__dot" style="--c:#FFFFFF"></span>Белый</li>
+                  <li class="cs__item" data-value="#0B6C31"><span class="cs__dot" style="--c:#0B6C31"></span>Тёмно-зелёный</li>
+                  <li class="cs__item" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
+                  <li class="cs__item" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
+                  <li class="cs__item" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
+                  <li class="cs__item" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
+                </ul>
+              </div>
 
-    <!-- Ряд 3: Фон -->
-    <div class="c-row">
-      <div class="c-label">Фон</div>
-      <div class="c-controls">
-        <div class="picker-wrap">
-          <input type="color" id="bgColor" value="#FFFFFF" />
-          <span class="color-preview" id="bgPreview"></span>
-        </div>
-        <select id="bgPreset" class="preset-select" aria-label="Пресет цвета для фона">
-          <option value="" disabled selected>Выбрать из брендбука…</option>
-          <option value="#009639">Основной зелёный — #009639</option>
-          <option value="#EAAA00">Основной жёлтый — #EAAA00</option>
-          <option value="#9BBD1E">Светло-зелёный — #9BBD1E</option>
-          <option value="#ED6E1C">Оранжевый — #ED6E1C</option>
-          <option value="#0067B2">Синий — #0067B2</option>
-          <option value="#FFFFFF">Белый — #FFFFFF</option>
-          <option value="#0B6C31">Тёмно-зелёный — #0B6C31</option>
-          <option value="#00375F">Глубокий синий — #00375F</option>
-          <option value="#53565A">Серый 1 — #53565A</option>
-          <option value="#E30613">Красный — #E30613</option>
-          <option value="__custom__">Произвольный (кастом)</option>
-        </select>
-      </div>
-    </div>
+              <!-- Цвет ключей -->
+              <label for="finderColor">Цвет ключей</label>
+              <div class="picker-wrap">
+                <input type="color" id="finderColor" value="#000000">
+              </div>
+              <select id="finderPreset" class="preset-select" hidden>
+                <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#009639">Основной зелёный</option>
+                <option value="#EAAA00">Основной жёлтый</option>
+                <option value="#9BBD1E">Светло-зелёный</option>
+                <option value="#ED6E1C">Оранжевый</option>
+                <option value="#0067B2">Синий</option>
+                <option value="#FFFFFF">Белый</option>
+                <option value="#0B6C31">Тёмно-зелёный</option>
+                <option value="#00375F">Глубокий синий</option>
+                <option value="#53565A">Серый 1</option>
+                <option value="#E30613">Красный</option>
+                <option value="__custom__">Произвольный</option>
+              </select>
+              <div class="cs" data-for="finder">
+                <button type="button" class="cs__trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="cs__dot" style="--c:#000000"></span>
+                  <span class="cs__label">Произвольный</span>
+                </button>
+                <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
+                  <li class="cs__item" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
+                  <li class="cs__item" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
+                  <li class="cs__item" data-value="#ED6E1C"><span class="cs__dot" style="--c:#ED6E1C"></span>Оранжевый</li>
+                  <li class="cs__item" data-value="#0067B2"><span class="cs__dot" style="--c:#0067B2"></span>Синий</li>
+                  <li class="cs__item" data-value="#FFFFFF"><span class="cs__dot" style="--c:#FFFFFF"></span>Белый</li>
+                  <li class="cs__item" data-value="#0B6C31"><span class="cs__dot" style="--c:#0B6C31"></span>Тёмно-зелёный</li>
+                  <li class="cs__item" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
+                  <li class="cs__item" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
+                  <li class="cs__item" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
+                  <li class="cs__item" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
+                </ul>
+              </div>
 
-    <div class="divider"></div>
+              <!-- Фон -->
+              <label for="bgColor">Фон</label>
+              <div class="picker-wrap">
+                <input type="color" id="bgColor" value="#FFFFFF">
+              </div>
+              <select id="bgPreset" class="preset-select" hidden>
+                <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#009639">Основной зелёный</option>
+                <option value="#EAAA00">Основной жёлтый</option>
+                <option value="#9BBD1E">Светло-зелёный</option>
+                <option value="#ED6E1C">Оранжевый</option>
+                <option value="#0067B2">Синий</option>
+                <option value="#FFFFFF">Белый</option>
+                <option value="#0B6C31">Тёмно-зелёный</option>
+                <option value="#00375F">Глубокий синий</option>
+                <option value="#53565A">Серый 1</option>
+                <option value="#E30613">Красный</option>
+                <option value="__custom__">Произвольный</option>
+              </select>
+              <div class="cs" data-for="bg">
+                <button type="button" class="cs__trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="cs__dot" style="--c:#FFFFFF"></span>
+                  <span class="cs__label">Белый</span>
+                </button>
+                <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
+                  <li class="cs__item" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
+                  <li class="cs__item" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
+                  <li class="cs__item" data-value="#ED6E1C"><span class="cs__dot" style="--c:#ED6E1C"></span>Оранжевый</li>
+                  <li class="cs__item" data-value="#0067B2"><span class="cs__dot" style="--c:#0067B2"></span>Синий</li>
+                  <li class="cs__item" data-value="#FFFFFF"><span class="cs__dot" style="--c:#FFFFFF"></span>Белый</li>
+                  <li class="cs__item" data-value="#0B6C31"><span class="cs__dot" style="--c:#0B6C31"></span>Тёмно-зелёный</li>
+                  <li class="cs__item" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
+                  <li class="cs__item" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
+                  <li class="cs__item" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
+                  <li class="cs__item" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
+                </ul>
+              </div>
+            </div>
 
-    <!-- Подсекция: Фирменные цвета (свайчи + сегмент-переключатель) -->
-    <div class="subheader">Фирменные цвета</div>
-    <div class="segmented" role="tablist" aria-label="Куда применить выбранный цвет">
-      <input type="radio" id="seg-fill" name="brandTarget" value="fill" data-target="fill" checked>
-      <label class="seg" for="seg-fill">QR</label>
+            <!-- Готовые стили (только цвета) -->
+            <div class="divider"></div>
+            <div class="subheader">Готовые стили</div>
+            <div class="theme-cards">
+              <button type="button" class="theme-card"
+                      data-fill="#009639" data-finder="#EAAA00" data-bg="#FFFFFF">
+                <span class="theme-title">АО «Зарубежнефть»</span>
+                <span class="theme-dots">
+                  <i style="--c:#009639"></i>
+                  <i style="--c:#EAAA00"></i>
+                  <i style="--c:#FFFFFF"></i>
+                </span>
+              </button>
 
-      <input type="radio" id="seg-finder" name="brandTarget" value="finder" data-target="finder">
-      <label class="seg" for="seg-finder">Ключи</label>
+              <button type="button" class="theme-card"
+                      data-fill="#0067B2" data-finder="#009639" data-bg="#FFFFFF">
+                <span class="theme-title">ЗН Цифра</span>
+                <span class="theme-dots">
+                  <i style="--c:#0067B2"></i>
+                  <i style="--c:#009639"></i>
+                  <i style="--c:#FFFFFF"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+        </details>
 
-      <input type="radio" id="seg-bg" name="brandTarget" value="bg" data-target="bg">
-      <label class="seg" for="seg-bg">Фон</label>
-    </div>
-
-    <div class="swatches" aria-label="Палитра брендбука">
-      <button class="swatch" data-hex="#009639" title="Основной зелёный"><span class="dot" style="--c:#009639"></span>#009639</button>
-      <button class="swatch" data-hex="#EAAA00" title="Основной жёлтый"><span class="dot" style="--c:#EAAA00"></span>#EAAA00</button>
-      <button class="swatch" data-hex="#9BBD1E" title="Светло-зелёный"><span class="dot" style="--c:#9BBD1E"></span>#9BBD1E</button>
-      <button class="swatch" data-hex="#ED6E1C" title="Оранжевый"><span class="dot" style="--c:#ED6E1C"></span>#ED6E1C</button>
-      <button class="swatch" data-hex="#0067B2" title="Синий"><span class="dot" style="--c:#0067B2"></span>#0067B2</button>
-      <button class="swatch" data-hex="#FFFFFF" title="Белый"><span class="dot" style="--c:#FFFFFF"></span>#FFFFFF</button>
-      <button class="swatch" data-hex="#0B6C31" title="Тёмно-зелёный"><span class="dot" style="--c:#0B6C31"></span>#0B6C31</button>
-      <button class="swatch" data-hex="#00375F" title="Глубокий синий"><span class="dot" style="--c:#00375F"></span>#00375F</button>
-      <button class="swatch" data-hex="#53565A" title="Серый 1"><span class="dot" style="--c:#53565A"></span>#53565A</button>
-      <button class="swatch" data-hex="#E30613" title="Красный"><span class="dot" style="--c:#E30613"></span>#E30613</button>
-    </div>
-
-    <p class="hint">Нажмите на цвет, затем выберите, куда применить: QR, ключи или фон.</p>
-
-    <div class="divider"></div>
-
-    <!-- Подсекция: Логотип -->
-    <div class="subheader">Логотип (опционально)</div>
-    <div class="logo-row">
-      <div class="logo-controls">
-        <input type="file" id="logoInput" accept="image/png" />
-        <button type="button" id="logoClearBtn" class="btn-secondary" aria-label="Очистить выбранный логотип">Очистить</button>
-      </div>
-      <div class="logo-preview big" id="logoPreview" aria-label="Превью логотипа">
-        <span class="placeholder">Превью</span>
-      </div>
-    </div>
-    <p class="hint">PNG до 500&nbsp;KB, квадратная форма желательна. Лишние прозрачные поля обрезаются автоматически.</p>
-  </div>
-</details>
-
+        <!-- ==================== ЛОГОТИП ОТДЕЛЬНО ==================== -->
+        <details class="style-block is-collapsible" data-animate>
+          <summary>Добавьте логотип</summary>
+          <div class="logo-block details-body">
+            <div class="logo-controls">
+              <input type="file" id="logoInput" accept="image/png" />
+              <button type="button" id="logoClearBtn" class="btn-secondary" aria-label="Очистить выбранный логотип">
+                Очистить
+              </button>
+            </div>
+            <div class="logo-preview big" id="logoPreview" aria-label="Превью логотипа">
+              <span class="placeholder">Превью</span>
+            </div>
+            <p class="hint">PNG до 500&nbsp;KB. При загрузке логотипа запрос станет POST multipart.</p>
+          </div>
+        </details>
 
         <button id="generateBtn">Сгенерировать</button>
       </div>
 
+      <!-- Правая колонка -->
       <aside class="result-section">
         <h2>Результат</h2>
         <div id="qrResult" class="qr-container">
@@ -169,6 +211,196 @@
     </section>
   </main>
 
+  <!-- твой основной скрипт оставляем -->
   <script src="script.js"></script>
+
+  <!-- лёгкий JS-энхансер: кастомные селекты + готовые стили (без изменения логики рендера) -->
+  <script>
+(function () {
+  // Человекочитаемые названия без хексов:
+  const PRESET_LABELS = {
+    "#009639": "Основной зелёный",
+    "#EAAA00": "Основной жёлтый",
+    "#9BBD1E": "Светло-зелёный",
+    "#ED6E1C": "Оранжевый",
+    "#0067B2": "Синий",
+    "#FFFFFF": "Белый",
+    "#0B6C31": "Тёмно-зелёный",
+    "#00375F": "Глубокий синий",
+    "#53565A": "Серый 1",
+    "#E30613": "Красный",
+    "__custom__": "Произвольный"
+  };
+
+  function updateNativeAndPicker(target, value) {
+    const sel    = document.getElementById(target + 'Preset');
+    const picker = document.getElementById(target + 'Color');
+    // sync hidden native select (его слушает твой script.js)
+    sel.value = value;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    // если выбрали пресет — обновляем и color input
+    if (value !== '__custom__') {
+      picker.value = value;
+      picker.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+
+  function initCustomSelect(cs) {
+    const target  = cs.dataset.for; // fill | finder | bg
+    const trigger = cs.querySelector('.cs__trigger');
+    const labelEl = trigger.querySelector('.cs__label');
+    const dot     = trigger.querySelector('.cs__dot');
+    const menu    = cs.querySelector('.cs__menu');
+    const sel     = document.getElementById(target + 'Preset');
+    const picker  = document.getElementById(target + 'Color');
+
+    function closeAll() {
+      document.querySelectorAll('.cs__menu[aria-hidden="false"]').forEach(m=>{
+        m.setAttribute('aria-hidden','true');
+        const t = m.parentElement.querySelector('.cs__trigger');
+        if (t) t.setAttribute('aria-expanded','false');
+      });
+    }
+    function openMenu() {
+      closeAll();
+      menu.setAttribute('aria-hidden','false');
+      trigger.setAttribute('aria-expanded','true');
+    }
+    function closeMenu() {
+      menu.setAttribute('aria-hidden','true');
+      trigger.setAttribute('aria-expanded','false');
+    }
+
+    document.addEventListener('click', (e)=>{
+      if (!cs.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') closeAll();
+    });
+
+    trigger.addEventListener('click', ()=>{
+      trigger.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+    });
+
+    menu.addEventListener('click', (e)=>{
+      const li = e.target.closest('.cs__item');
+      if (!li) return;
+      const val = li.dataset.value;
+      labelEl.textContent = PRESET_LABELS[val] || 'Произвольный';
+      dot.style.setProperty('--c', val === '__custom__' ? picker.value : val);
+      updateNativeAndPicker(target, val);
+      closeMenu();
+    });
+
+    // когда юзер меняет color-picker — считаем это "Произвольный"
+    picker.addEventListener('input', ()=>{
+      const v = picker.value;
+      dot.style.setProperty('--c', v);
+      labelEl.textContent = PRESET_LABELS['__custom__'];
+      sel.value = '__custom__';
+      sel.dispatchEvent(new Event('change', { bubbles:true }));
+    });
+
+    // initial
+    menu.setAttribute('aria-hidden','true');
+  }
+
+  document.querySelectorAll('.cs').forEach(initCustomSelect);
+
+  // ===== Готовые стили (только цвета) =====
+  function applyPresetToTarget(target, hex) {
+    const sel    = document.getElementById(target + 'Preset');
+    const picker = document.getElementById(target + 'Color');
+    // sync native select (его слушает твой script.js)
+    sel.value = hex;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    // sync color input
+    picker.value = hex;
+    picker.dispatchEvent(new Event('input', { bubbles: true }));
+    // обновить кастомный селект (кружок + подпись)
+    const trigger = document.querySelector(`.cs[data-for="${target}"] .cs__trigger`);
+    if (trigger) {
+      trigger.querySelector('.cs__label').textContent = PRESET_LABELS[hex] || 'Произвольный';
+      trigger.querySelector('.cs__dot').style.setProperty('--c', hex);
+    }
+  }
+
+  function applyThemeButton(btn) {
+    document.querySelectorAll('.theme-card').forEach(b => b.classList.remove('is-active'));
+    btn.classList.add('is-active');
+    applyPresetToTarget('fill',   btn.dataset.fill);
+    applyPresetToTarget('finder', btn.dataset.finder);
+    applyPresetToTarget('bg',     btn.dataset.bg);
+  }
+
+  document.querySelectorAll('.theme-card').forEach(btn => {
+    btn.addEventListener('click', () => applyThemeButton(btn));
+  });
+})();
+</script>
+
+<script>
+/* Плавная анимация раскрытия/сворачивания details без «скачков» */
+(function(){
+  function mountAnimatedDetails(d){
+    // внутри каждого details у тебя ровно один блок: .customizer ИЛИ .logo-block
+    const panel   = d.querySelector('.customizer, .logo-block');
+    const summary = d.querySelector('summary');
+    if(!panel || !summary) return;
+
+    function openAnim(){
+      d.setAttribute('open','');                // сразу «открыт» для доступности
+      panel.classList.add('is-animating');
+      // стартовое состояние
+      panel.style.opacity = 0;
+      panel.style.height  = '0px';
+      panel.style.padding = '12px 12px 14px';
+
+      requestAnimationFrame(()=>{
+        panel.style.opacity = 1;
+        panel.style.height  = panel.scrollHeight + 'px';
+      });
+
+      const fin = (e)=>{
+        if(e.propertyName !== 'height') return;
+        panel.classList.remove('is-animating');
+        panel.style.height = 'auto';            // чтобы не «резалось» при изменении контента
+        panel.removeEventListener('transitionend', fin);
+      };
+      panel.addEventListener('transitionend', fin);
+    }
+
+    function closeAnim(){
+      panel.classList.add('is-animating');
+      panel.style.height  = panel.scrollHeight + 'px'; // стартовая точка
+      panel.style.opacity = 1;
+
+      requestAnimationFrame(()=>{
+        panel.style.height  = '0px';
+        panel.style.opacity = 0;
+        panel.style.padding = '0 12px';         // убираем вертикальные отступы к концу анимации
+      });
+
+      const fin = (e)=>{
+        if(e.propertyName !== 'height') return;
+        panel.classList.remove('is-animating');
+        d.removeAttribute('open');              // реально закрываем после анимации
+        panel.removeEventListener('transitionend', fin);
+      };
+      panel.addEventListener('transitionend', fin);
+    }
+
+    // Перехватываем натив, чтобы анимировать обе стороны одинаково
+    summary.addEventListener('click', (e)=>{
+      e.preventDefault();
+      d.open ? closeAnim() : openAnim();
+    });
+  }
+
+  document.querySelectorAll('details.style-block').forEach(mountAnimatedDetails);
+})();
+</script>
+
+
 </body>
 </html>
