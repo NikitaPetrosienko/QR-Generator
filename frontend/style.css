@@ -1,574 +1,316 @@
 /* ==========================================================================
-   0) THEME TOKENS (CSS Variables)
+   0) THEME TOKENS — базовые токены темы
    ========================================================================== */
-:root {
-  --green: #00B15D;
-  --yellow: #FFB338;
-  --text: #100821;
-  --border: #E0E0E0;
-  --bg-light: #FAFAFA;
-  --radius: 10px;
-  --font: "Roboto", sans-serif;
+:root{
+  --green: #00B15D;            /* UI-зелёный (фокусы/кнопки). Брендовые пресеты — в списках */
+  --yellow:#FFB338;            /* Акцент (полоса заголовка и т.п.) */
+  --text: #100821;             /* Основной цвет текста */
+  --border:#E0E0E0;            /* Цвет тонких границ */
+  --bg-light:#FAFAFA;          /* Светлый фон панелей */
+  --radius: 10px;              /* Базовый радиус скругления */
+  --font:"Roboto",sans-serif;  /* Базовый шрифт интерфейса */
 }
 
 /* ==========================================================================
-   1) BASE RESET & GLOBALS
+   1) БАЗОВЫЕ СБРОСЫ И ГЛОБАЛЬНЫЕ НАСТРОЙКИ
    ========================================================================== */
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  font-family: var(--font);
-  background: #fff;
-  color: var(--text);
-  margin: 0;
-  padding: 0;
-  -webkit-font-smoothing: antialiased;
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  font-family:var(--font);
+  background:#fff; color:var(--text);
+  margin:0; padding:0;
+  -webkit-font-smoothing:antialiased;
 }
-img { max-width: 100%; display: block; }
-button { font-family: inherit; }
-a { color: inherit; text-decoration: none; }
+img{ max-width:100%; display:block; }
+button{ font-family:inherit; }
+a{ color:inherit; text-decoration:none; }
 
-/* ==========================================================================
-   2) PAGE WRAPPERS / LAYOUT
-   ========================================================================== */
-.page-container {
-  max-width: 1360px;
-  margin: 0 auto;
-  padding: 35px 50px;
-}
-.content {
-  display: grid;
-  grid-template-columns: 1fr 480px; /* main | aside */
-  gap: 40px;
-  align-items: flex-start;
+html { scrollbar-gutter: stable both-edges; }
+@supports not (scrollbar-gutter: stable) {
+  body { overflow-y: scroll; } /* фолбэк для движков без поддержки */
 }
 
 /* ==========================================================================
-   3) HEADER (local page title)
+   2) КОМПОНОВКА СТРАНИЦЫ
    ========================================================================== */
-.corp-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 25px;
+.page-container{
+  max-width:1360px; margin:0 auto; padding:35px 50px;
 }
-.corp-title {
-  position: relative;
-  font-size: 30px;
-  font-weight: 700;
-  text-transform: uppercase;
-  line-height: 45px;
-  padding-left: 20px;
-  margin: 0;
-}
-.corp-title::before {
-  content: "";
-  position: absolute; left: 0;
-  width: 8px; height: 45px;
-  background-color: var(--yellow);
-  border-radius: 2px;
+.content{
+  display:grid; grid-template-columns:1fr 480px; gap:40px; align-items:flex-start;
 }
 
 /* ==========================================================================
-   4) FORM PANEL (left column)
+   3) ЗАГОЛОВОК СТРАНИЦЫ
    ========================================================================== */
-.form-section {
-  background: #fff;
-  border-radius: var(--radius);
-  padding: 10px 0 0;
-  margin: 0;
+.corp-header{ display:flex; align-items:center; margin-bottom:25px; }
+.corp-title{
+  position:relative; font-size:30px; font-weight:700; text-transform:uppercase;
+  line-height:45px; padding-left:20px; margin:0;
 }
-
-/* --- Tabs --- */
-.tab-row {
-  display: flex;
-  gap: 25px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 1.5rem;
-  padding-bottom: 3px;
-}
-.tab {
-  position: relative;
-  background: none;
-  border: none;
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--text);
-  cursor: pointer;
-  padding: 6px 0 10px;
-  transition: color 0.25s ease;
-}
-.tab::after {
-  content: "";
-  position: absolute; left: 0; right: 0; bottom: -1px;
-  height: 2px; background: var(--green);
-  opacity: 0; transition: opacity 0.25s ease;
-}
-.tab:hover { color: var(--green); }
-.tab.active { color: var(--green); }
-.tab.active::after { opacity: 1; }
-
-/* --- Standard inputs (outside customization grid) --- */
-label {
-  font-weight: 500;
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-  display: block;
-}
-input, textarea, select {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.7rem 0.9rem;
-  font-family: var(--font);
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-  max-width: 100%;
-  background: #fff;
-}
-input:focus, textarea:focus, select:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
-  outline: none;
-}
-
-/* --- Paired fields grid --- */
-.double-fields {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.corp-title::before{
+  content:""; position:absolute; left:0; width:8px; height:45px;
+  background:var(--yellow); border-radius:2px;
 }
 
 /* ==========================================================================
-   5) DETAILS PANELS (both "Выберите цвета" и "Добавьте логотип")
+   4) ЛЕВАЯ ПАНЕЛЬ ФОРМЫ
    ========================================================================== */
-details.style-block {
-  background: var(--bg-light);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 1rem;
-  overflow: clip; /* для аккуратной анимации */
+.form-section{
+  background:#fff; border-radius:var(--radius); padding:10px 0 0; margin:0;
 }
 
-/* Красивый summary */
-details.style-block > summary {
-  position: relative;
-  padding: 12px 40px 12px 12px;
-  font-weight: 700;
-  cursor: pointer;
-  list-style: none; /* скрыть маркер */
-  user-select: none;
-  background: #fff;
-  border-radius: calc(var(--radius) - 1px);
-  transition: box-shadow .20s ease, border-color .20s ease, background .20s ease;
-  border: 1px solid var(--border);
-  margin: 6px 6px 0;
+/* Вкладки */
+.tab-row{
+  display:flex; gap:25px; border-bottom:1px solid var(--border);
+  margin-bottom:1.5rem; padding-bottom:3px;
 }
-details.style-block > summary::-webkit-details-marker { display: none; }
-details.style-block > summary::after {
-  content: "";
-  position: absolute; right: 16px; top: 50%;
-  width: 10px; height: 10px;
-  border-right: 2px solid #9aa0a6;
-  border-bottom: 2px solid #9aa0a6;
-  transform: translateY(-50%) rotate(-45deg);
-  transition: transform .2s ease, border-color .2s ease;
+.tab{
+  position:relative; background:none; border:none; font-size:17px; font-weight:500;
+  color:var(--text); cursor:pointer; padding:6px 0 10px; transition:color .25s ease;
 }
-details.style-block[open] > summary {
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
-  border-color: #dfe3e7;
+.tab::after{
+  content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px;
+  background:var(--green); opacity:0; transition:opacity .25s ease;
 }
-details.style-block[open] > summary::after {
-  transform: translateY(-50%) rotate(45deg);
-  border-color: var(--green);
+.tab:hover{ color:var(--green); }
+.tab.active{ color:var(--green); }
+.tab.active::after{ opacity:1; }
+
+/* Поля ввода */
+label{ font-weight:500; font-size:.9rem; margin-bottom:.3rem; display:block; }
+input,textarea,select{
+  width:100%; border:1px solid var(--border); border-radius:6px;
+  padding:.7rem .9rem; font:400 .95rem var(--font); margin-bottom:1rem;
+  transition:border .2s ease, box-shadow .2s ease; background:#fff; max-width:100%;
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--green); box-shadow:0 0 0 3px rgba(0,177,93,.15); outline:none;
 }
 
-/* Плавная анимация тела details */
-details.style-block .customizer,
-details.style-block .logo-block {
-  max-height: 0;
-  opacity: 0;
-  transform: translateY(-6px);
-  transition: max-height .26s ease, opacity .22s ease, transform .26s ease, padding .2s ease;
-  padding: 0 12px;
-  overflow: hidden;
-}
-details.style-block[open] .customizer,
-details.style-block[open] .logo-block {
-  max-height: 1200px; /* достаточно для содержимого */
-  opacity: 1;
-  transform: translateY(0);
-  padding: 12px 12px 14px;
-}
-
-/* Разделители и сабзаголовки внутри кастомизации */
-.divider {
-  height: 1px;
-  background: var(--border);
-  margin: 14px 0;
-}
-.subheader {
-  font-weight: 700;
-  font-size: 1rem;
-  margin: 4px 0 10px;
-}
+/* Парные поля (две колонки) */
+.double-fields{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
 
 /* ==========================================================================
-   6) COLORS CUSTOMIZER (layout: label | color-picker | preset-select)
+   5) ПАНЕЛИ <details> (кастомизация цветов / логотип)
    ========================================================================== */
-.customizer { }
-.style-grid-rows {
-  display: grid;
-  grid-template-columns: 160px auto minmax(260px, 360px); /* label | picker | select */
-  gap: 12px 16px;
-  align-items: center;
-}
-.style-grid-rows > label {
-  margin: 0;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--text);
-}
-
-/* --- Color picker --- */
-.picker-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-.picker-wrap input[type="color"] {
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  cursor: pointer;
-  background: none;
-  padding: 0;
-  box-shadow: 0 0 0 1px var(--border), 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.picker-wrap input[type="color"]::-webkit-color-swatch {
-  border: none;
-  border-radius: 12px;
-}
-.picker-wrap input[type="color"]:hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 0 2px var(--green), 0 4px 12px rgba(0, 150, 57, 0.22);
-}
-/* скрываем старые мини-превью, если вдруг где-то остались */
-.color-preview { display: none !important; }
-
-/* --- Preset select (с цветным чипом справа) --- */
-.preset-select {
-  --sel-color: #000000; /* переопределяется inline из HTML/JS */
-  height: 48px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0 48px 0 12px;  /* справа место под чип + стрелку */
-  font-size: 0.95rem;
-  background: #fff;
-
-  /* цветной чип */
-  background-image: radial-gradient(circle at center, var(--sel-color) 55%, rgba(0,0,0,0) 56%);
-  background-repeat: no-repeat;
-  background-position: right 16px center;
-  background-size: 18px 18px;
-
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
-.preset-select:focus {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
-  outline: none;
-}
-
-/* ==========================================================================
-   7) LOGO PANEL
-   ========================================================================== */
-.logo-block { }
-.logo-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-.logo-controls input[type="file"] { width: auto; }
-.btn-secondary {
-  background: #fff;
-  color: var(--green);
-  border: 1px solid var(--green);
-  border-radius: 10px;
-  height: 40px;
-  padding: 0 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-}
-.btn-secondary:hover {
-  background: var(--green);
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0,177,93,0.22);
-}
-.logo-preview.big {
-  min-width: 96px;
-  min-height: 96px;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  background: var(--bg-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #9aa0a6;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-}
-.hint {
-  margin: 8px 0 0;
-  color: #7c7f85;
-  font-size: 0.85rem;
-}
-
-/* ==========================================================================
-   8) ACTIONS (Generate/Download buttons)
-   ========================================================================== */
-#generateBtn {
-  background: var(--green);
-  color: #fff;
-  border: none;
-  border-radius: var(--radius);
-  padding: 0.9rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  margin: 1.5rem auto 0;
-  display: block;
-  width: fit-content;
-  min-width: 550px;
-}
-#generateBtn:hover {
-  background: var(--yellow);
-  box-shadow: 0 4px 12px rgba(0,177,93,0.25);
-}
-.download-btn {
-  width: 100%;
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--green);
-  background: #fff;
-  color: var(--green);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.download-btn:hover:not(:disabled) {
-  background: var(--green);
-  color: #fff;
-}
-.download-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ==========================================================================
-   9) RESULT PANEL (right column)
-   ========================================================================== */
-.result-section {
-  position: relative;
-  top: 20px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 2rem;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  min-height: 520px;
-}
-.result-section h2 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-.qr-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #fafafa;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  min-height: 380px;
-  margin-bottom: 1rem;
-}
-.qr-container img {
-  max-width: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.qr-container img.visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* ==========================================================================
-   10) RESPONSIVE
-   ========================================================================== */
-@media (max-width: 980px) {
-  .content { grid-template-columns: 1fr; }
-  .style-grid-rows { grid-template-columns: 1fr; }
-  #generateBtn { min-width: 100%; }
-}
-
-/* ==========================================================================
-   11) Custom color-select (cs)
-   ========================================================================== */
-.cs { position: relative; }
-.cs__trigger{
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  text-align: left;
-  font-size: 0.95rem;
-}
-.cs__trigger[aria-expanded="true"]{
-  box-shadow: 0 0 0 3px rgba(0,177,93,0.15);
-  border-color: var(--green);
-}
-.cs__dot{
-  width: 18px; height: 18px;
-  border-radius: 999px;
-  background: var(--c, #000);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
-}
-.cs__dot--custom{ background: linear-gradient(45deg,#ccc 0,#eee 100%); }
-.cs__menu{
-  position: absolute; z-index: 20;
-  left: 0; right: 0; top: calc(100% + 6px);
-  background: #fff; border: 1px solid var(--border);
-  border-radius: 12px; padding: 6px; max-height: 260px; overflow: auto;
-  box-shadow: 0 8px 28px rgba(0,0,0,.12);
-}
-.cs__menu[aria-hidden="true"]{ display: none; }
-.cs__item{
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-.cs__item:hover{ background: #f4f6f8; }
-
-/* ==========================================================================
-   12) Готовые стили (кнопки)
-   ========================================================================== */
-.theme-cards{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
-  margin-top: 6px;
-}
-.theme-card{
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  transition: border-color .20s ease, box-shadow .20s ease, transform .06s ease;
-}
-.theme-card:hover{
-  border-color: #d9dde1;
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
-  transform: translateY(-1px);
-}
-.theme-card.is-active{
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(0,177,93,.15);
-}
-.theme-title{ font-weight: 600; }
-.theme-dots i{
-  display: inline-block;
-  width: 14px; height: 14px;
-  border-radius: 999px;
-  background: var(--c);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.06);
-  margin-left: 6px;
-}
-/* === Details: современный вид без двойной рамки === */
 details.style-block{
-  border: none;
-  background: transparent;
-  margin: 14px 0;
-  padding: 0;
-  overflow: clip; /* аккуратное скрытие при анимации */
+  border:none; background:transparent; margin:14px 0; padding:0;
 }
+
+/* Заголовок раскрывающегося блока */
 details.style-block > summary{
-  display: block;
-  margin: 0;
-  padding: 16px 52px 16px 20px;
-  background: #fff;
-  border: 1px solid #E6E8EB;            /* тоньше и светлее */
-  border-radius: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
-  box-shadow: 0 1px 2px rgba(16,24,40,.04);
-  transition: box-shadow .25s ease, border-color .25s ease, background .25s ease;
+  position:relative; display:block; margin:0; padding:16px 52px 16px 20px;
+  background:#fff; border:1px solid #E6E8EB; border-radius:16px;
+  font-weight:700; cursor:pointer; user-select:none; list-style:none;
+  box-shadow:0 1px 2px rgba(16,24,40,.04);
+  transition:box-shadow .25s ease, border-color .25s ease, background .25s ease;
 }
 details.style-block > summary::-webkit-details-marker{ display:none; }
 details.style-block > summary::after{
-  content:"";
-  position:absolute; right:18px; top:50%;
-  width:10px; height:10px;
-  border-right:2px solid #9aa0a6;
-  border-bottom:2px solid #9aa0a6;
-  transform: translateY(-50%) rotate(-45deg);
-  transition: transform .25s ease, border-color .25s ease;
+  content:""; position:absolute; right:18px; top:50%;
+  width:10px; height:10px; border-right:2px solid #9aa0a6; border-bottom:2px solid #9aa0a6;
+  transform:translateY(-50%) rotate(-45deg);
+  transition:transform .25s ease, border-color .25s ease;
 }
 details.style-block[open] > summary{
-  border-color:#D6EDE2;
-  box-shadow: 0 8px 24px rgba(16,24,40,.08);
+  border-color:#D6EDE2; box-shadow:0 8px 24px rgba(16,24,40,.08);
 }
 details.style-block[open] > summary::after{
-  transform: translateY(-50%) rotate(45deg);
-  border-color: var(--green);
+  transform:translateY(-50%) rotate(45deg); border-color:var(--green);
 }
 
-/* === Тело details: плавная анимация (высота + прозрачность) === */
 details.style-block .customizer,
 details.style-block .logo-block{
-  height: 0;                /* управляет JS */
-  opacity: 0;
-  overflow: hidden;
-  padding: 0 12px;          /* внутренние поля появятся при открытии */
+  height:0; opacity:0; overflow:hidden; padding:0 12px;
 }
 details.style-block .is-animating{
-  will-change: height, opacity;
+  will-change:height, opacity;
   transition:
     height 360ms cubic-bezier(0.22,1,0.36,1),
-    opacity 280ms ease;
+    opacity 280ms ease,
+    padding 200ms ease;
 }
-details.style-block[open] .customizer,
-details.style-block[open] .logo-block{
-  /* итоговое состояние выставит JS: height:auto; opacity:1; */
-  padding: 12px 12px 14px;
+details.style-block[open] > summary{
+  border-bottom-color:transparent;             
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  box-shadow:none;                             /* тень только на теле */
+}
+details.style-block[open] .customizer.details-body,
+details.style-block[open] .logo-block.details-body{
+  margin:0;                                   
+  background:#fff;
+  border:1px solid #E6E8EB;
+  border-top:none;                              
+  border-radius:0 0 16px 16px;
+  box-shadow:0 8px 24px rgba(16,24,40,.06);
+  padding:12px 12px 14px;                      /* синхронизировано с анимацией */
+  overflow:visible;                             /* чтобы всплывающие меню не резались */
 }
 
-/* уважение к users with reduced motion */
+/* Внутренние разделители/саб-заголовки */
+.divider{ height:1px; background:var(--border); margin:14px 0; }
+.subheader{ font-weight:700; font-size:1rem; margin:4px 0 10px; }
+
+/* ==========================================================================
+   6) СЕТКА КАСТОМИЗАЦИИ ЦВЕТОВ
+   ========================================================================== */
+.style-grid-rows{
+  display:grid;
+  grid-template-columns:160px auto minmax(260px, 360px); /* label | picker | select */
+  gap:12px 16px; align-items:center;
+}
+.style-grid-rows > label{
+  margin:0; font-weight:700; font-size:1.05rem; color:var(--text);
+}
+
+/* Цветовой пикер */
+.picker-wrap{ display:inline-flex; align-items:center; gap:10px; }
+.picker-wrap input[type="color"]{
+  -webkit-appearance:none; appearance:none; border:none;
+  width:48px; height:48px; border-radius:14px; cursor:pointer; background:none; padding:0;
+  box-shadow:0 0 0 1px var(--border), 0 2px 6px rgba(0,0,0,.08);
+  transition:transform .2s ease, box-shadow .2s ease;
+}
+.picker-wrap input[type="color"]::-webkit-color-swatch{ border:none; border-radius:12px; }
+.picker-wrap input[type="color"]:hover{
+  transform:scale(1.04);
+  box-shadow:0 0 0 2px var(--green), 0 4px 12px rgba(0,150,57,.22);
+}
+
+.color-preview{ display:none !important; }
+
+/* ==========================================================================
+   7) КАСТОМНЫЙ SELECT ПРЕСЕТОВ (меню портируется в <body>)
+   ========================================================================== */
+.cs{ position:relative; }
+.cs__trigger{
+  display:grid; grid-template-columns:24px 1fr; align-items:center; gap:10px;
+  width:100%; height:48px; padding:0 14px;
+  border:1px solid var(--border); border-radius:12px; background:#fff;
+  cursor:pointer; text-align:left; font-size:.95rem;
+  transition: box-shadow .25s ease, border-color .25s ease;
+}
+.cs__trigger[aria-expanded="true"]{
+  box-shadow:0 0 0 3px rgba(0,177,93,.15); border-color:var(--green);
+}
+.cs__dot{
+  width:18px; height:18px; border-radius:999px; background:var(--c,#000);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.cs__dot--custom{ background:linear-gradient(45deg,#ccc 0,#eee 100%); }
+
+/* Меню (fixed) — координаты и видимость выставляет JS при открытии */
+.cs__menu{
+  position:fixed; z-index:9999; top:-9999px; left:-9999px;
+  background:#fff; border:1px solid var(--border); border-radius:12px; padding:6px;
+  max-height:280px; overflow:auto; min-width:200px;
+  box-shadow:0 8px 28px rgba(0,0,0,.12);
+}
+.cs__menu[aria-hidden="true"]{ display:none; }
+
+.cs__item{
+  display:grid; grid-template-columns:24px 1fr; align-items:center; gap:10px;
+  padding:8px 10px; border-radius:10px; cursor:pointer; font-size:.95rem;
+}
+.cs__item:hover, .cs__item:focus{ background:#f4f6f8; outline:none; }
+
+/* ==========================================================================
+   8) ПАНЕЛЬ ЛОГОТИПА
+   ========================================================================== */
+.logo-controls{
+  display:inline-flex; align-items:center; gap:12px; margin-bottom:10px;
+}
+/* Выровнять высоту file-инпута и кнопки «Очистить» */
+.logo-controls input[type="file"]{
+  width:auto;
+  height:60px;
+  line-height:40px; /* страховка для WebKit */
+}
+.logo-controls input[type="file"]::file-selector-button{
+  height:40px; line-height:40px;
+  padding:0 12px; margin-right:12px;
+  border:1px solid var(--border); border-radius:10px;
+  background:#fff; cursor:pointer;
+}
+
+.btn-secondary{
+  display:inline-flex; align-items:center; justify-content:center;
+  background:#fff; color:var(--green); border:1px solid var(--green);
+  border-radius:10px; height:40px; padding:0 14px; font-weight:600; cursor:pointer;
+  transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+.btn-secondary:hover{ background:var(--green); color:#fff; box-shadow:0 4px 12px rgba(0,177,93,.22); }
+
+.logo-preview.big{
+  min-width:96px; min-height:96px; border:1px dashed var(--border); border-radius:12px;
+  background:var(--bg-light); display:flex; align-items:center; justify-content:center;
+  color:#9aa0a6; font-size:12px; letter-spacing:.3px;
+}
+.hint{ margin:8px 0 0; color:#7c7f85; font-size:.85rem; }
+
+/* ==========================================================================
+   9) КНОПКИ ДЕЙСТВИЙ
+   ========================================================================== */
+#generateBtn{
+  background:var(--green); color:#fff; border:none; border-radius:var(--radius);
+  padding:.9rem 1.2rem; font-size:1rem; font-weight:600; cursor:pointer;
+  transition: all .25s ease; margin:1.5rem auto 0; display:block; width:fit-content; min-width:550px;
+}
+#generateBtn:hover{ background:var(--yellow); box-shadow:0 4px 12px rgba(0,177,93,.25); }
+.download-btn{
+  width:100%; padding:.8rem 1.5rem; border-radius:var(--radius);
+  border:1px solid var(--green); background:#fff; color:var(--green);
+  font-weight:600; cursor:pointer; transition:all .25s ease;
+}
+.download-btn:hover:not(:disabled){ background:var(--green); color:#fff; }
+.download-btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+/* ==========================================================================
+   10) ПРАВАЯ ПАНЕЛЬ (РЕЗУЛЬТАТ)
+   ========================================================================== */
+.result-section{
+  position:relative; top:20px; background:#fff; border:1px solid var(--border);
+  border-radius:var(--radius); padding:2rem; box-shadow:0 2px 10px rgba(0,0,0,.05);
+  min-height:520px;
+}
+.result-section h2{ font-size:18px; font-weight:700; margin:0 0 1rem; }
+.qr-container{
+  display:flex; align-items:center; justify-content:center;
+  background:#fafafa; border-radius:var(--radius); border:1px solid var(--border);
+  min-height:380px; margin-bottom:1rem;
+}
+.qr-container img{
+  max-width:100%; opacity:0; transition:opacity .5s ease, transform .5s ease;
+}
+.qr-container img.visible{ opacity:1; transform:scale(1); }
+
+/* ==========================================================================
+   11) ГОТОВЫЕ СТИЛИ (карточки пресетов)
+   ========================================================================== */
+.theme-cards{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:6px;
+}
+.theme-card{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px 14px; border:1px solid var(--border); border-radius:12px; background:#fff; cursor:pointer;
+  transition:border-color .20s ease, box-shadow .20s ease, transform .06s ease;
+}
+.theme-card:hover{ border-color:#d9dde1; box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-1px); }
+.theme-card.is-active{ border-color:var(--green); box-shadow:0 0 0 3px rgba(0,177,93,.15); }
+.theme-title{ font-weight:600; }
+.theme-dots i{
+  display:inline-block; width:14px; height:14px; border-radius:999px; background:var(--c);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.06); margin-left:6px;
+}
+
+/* ==========================================================================
+   12) ДОСТУПНОСТЬ / УМЕНЬШЕННОЕ ДВИЖЕНИЕ
+   ========================================================================== */
 @media (prefers-reduced-motion: reduce){
-  details.style-block .is-animating{ transition: none; }
+  details.style-block .is-animating{ transition:none; }
+  .cs__trigger{ transition:none; }
+  #generateBtn, .download-btn{ transition:none; }
 }

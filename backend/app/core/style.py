@@ -1,4 +1,3 @@
-# backend/app/core/style.py
 from typing import Optional, Literal, Dict, Any
 from pydantic import BaseModel, field_validator, model_validator
 import os, re
@@ -8,7 +7,7 @@ HEX_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 
 class QRStyle(BaseModel):
     size: int = 512
-    border: int = 8
+    border: int = 6
     fill: str = "#000000"
     bg: str = "#FFFFFF"
     finder: str = "#000000"

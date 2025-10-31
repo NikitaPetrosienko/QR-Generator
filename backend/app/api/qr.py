@@ -1,4 +1,3 @@
-# backend/app/api/qr.py
 import os
 from typing import Optional
 from urllib.parse import quote
@@ -14,7 +13,7 @@ from backend.app.core.renderer import render_qr_png
 from backend.app.core.vcard import build_vcard_text
 from backend.app.config.config import load_all_config  # JSON-стиль для ЛК
 
-router = APIRouter(prefix="/api/v1", tags=["QR"])
+router = APIRouter(prefix="/api/v1", tags=["QR"]) 
 
 # -----------------------
 # Вспомогательные
@@ -89,13 +88,7 @@ async def generate_qr(
     mobile: Optional[str] = Query(""),
     work_short: Optional[str] = Query(""),
 ):
-    """
-    GET:
-      - как было: context=ui (универсальный конструктор, без логотипа), context=lk (только vcard из конфига)
-    POST (multipart/form-data):
-      - только context=ui: поддержка пользовательского логотипа (поле 'logo')
-      - остальные параметры принимаются как текстовые поля формы
-    """
+    
     method = request.method.upper()
 
     # Если это POST — достанем form и переопределим значения полей из формы
