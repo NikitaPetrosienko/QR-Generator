@@ -1,4 +1,3 @@
-# backend/app/logging_conf.py
 import sys, json, time, logging
 from logging.handlers import RotatingFileHandler
 
