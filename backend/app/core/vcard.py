@@ -54,6 +54,18 @@ def build_vcard_text(
     if email:
         lines.append(f"EMAIL;TYPE=INTERNET;TYPE=WORK;TYPE=pref:{v_escape(email)}")
 
+    # Стандартные поля организации/должности
+    if org or dept:
+        if org and dept:
+            lines.append(f"ORG:{v_escape(org)};{v_escape(dept)}")
+        elif org:
+            lines.append(f"ORG:{v_escape(org)}")
+        else:
+            # нет организации, но есть подразделение — кладём как единственный компонент
+            lines.append(f"ORG:{v_escape(dept)}")
+    if title:
+        lines.append(f"TITLE:{v_escape(title)}")
+
     ws = norm_phone_display(work_short)
     mob = norm_phone_display(mobile)
 
