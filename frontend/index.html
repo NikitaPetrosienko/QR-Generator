@@ -11,6 +11,7 @@
   <main class="page-container">
     <div class="corp-header">
       <h1 class="corp-title">ГЕНЕРАТОР QR-КОДОВ</h1>
+      <a class="howto-link" href="#howto">Как пользоваться?</a>
     </div>
 
     <section class="content">
@@ -18,11 +19,11 @@
       <div class="form-section">
         <!-- Вкладки -->
         <div class="tab-row">
-          <button class="tab active" data-type="url">Ссылка</button>
-          <button class="tab" data-type="phone">Телефон</button>
-          <button class="tab" data-type="mail">E-mail</button>
-          <button class="tab" data-type="sms">SMS</button>
           <button class="tab" data-type="vcard">Визитка</button>
+          <button class="tab" data-type="phone">Телефон</button>
+          <button class="tab" data-type="sms">SMS</button>
+          <button class="tab" data-type="mail">E-mail</button>
+          <button class="tab active" data-type="url">Ссылка</button>
         </div>
 
         <!-- Поля формы будет рендерить твой script.js -->
@@ -162,7 +163,7 @@
             <div class="theme-cards">
               <button type="button" class="theme-card"
                       data-fill="#009639" data-finder="#EAAA00" data-bg="#FFFFFF">
-                <span class="theme-title">АО «Зарубежнефть»</span>
+                <span class="theme-title">Стиль 1</span>
                 <span class="theme-dots">
                   <i style="--c:#009639"></i>
                   <i style="--c:#EAAA00"></i>
@@ -172,7 +173,7 @@
 
               <button type="button" class="theme-card"
                       data-fill="#0067B2" data-finder="#009639" data-bg="#FFFFFF">
-                <span class="theme-title">ЗН Цифра</span>
+                <span class="theme-title">Стиль 2</span>
                 <span class="theme-dots">
                   <i style="--c:#0067B2"></i>
                   <i style="--c:#009639"></i>
@@ -212,6 +213,56 @@
         <button id="downloadBtn" class="download-btn" disabled>Скачать QR</button>
       </aside>
     </section>
+
+    <!-- ===== HOW TO / ИНСТРУКЦИЯ ===== -->
+    <section class="howto" id="howto">
+      <div class="howto__kicker">НАЧАЛО РАБОТЫ</div>
+      <h2 class="howto__title">Создайте ваш собственный QR-код с логотипом</h2>
+
+      <div class="howto__grid">
+        <article class="howto__step">
+          <div class="howto__num">1</div>
+          <div class="howto__body">
+            <h3 class="howto__h">Настройте содержимое QR-кода</h3>
+            <p class="howto__p">Выберите тип QR-кода во вкладках сверху — Визитка, Телефон, SMS, E-mail или Ссылка.
+  Заполните поля, которые должны появиться при сканировании QR-кода.
+  Убедитесь, что данные введены корректно, так как содержимое QR-кода изменяется только до генерации.</p>
+          </div>
+        </article>
+
+        <article class="howto__step">
+          <div class="howto__num">2</div>
+          <div class="howto__body">
+            <h3 class="howto__h">Выберите дизайн</h3>
+            <p class="howto__p">Настройте внешний вид QR-кода: выберите цвета заливки, ключей (угловых элементов) и фона.
+  Можно использовать фирменные цвета из брендбука или выбрать произвольные.
+  При необходимости загрузите PNG-логотип — он будет размещён в центре QR-кода на аккуратной белой подложке.</p>
+          </div>
+        </article>
+
+        <article class="howto__step">
+          <div class="howto__num">3</div>
+          <div class="howto__body">
+            <h3 class="howto__h">Сгенерируйте QR-код</h3>
+            <p class="howto__p">Нажмите кнопку «Сгенерировать», чтобы получить QR-код.
+  В правом блоке появится превью результата.
+  Проверьте, что QR-код корректно считывается на вашем устройстве (iOS или Android).</p>
+          </div>
+        </article>
+
+        <article class="howto__step">
+          <div class="howto__num">4</div>
+          <div class="howto__body">
+            <h3 class="howto__h">Скачайте изображение</h3>
+            <p class="howto__p">После генерации нажмите «Скачать QR», чтобы сохранить изображение в формате PNG.
+  PNG лучше подходит для печати и вставки в документы.
+  Если вы использовали логотип или фирменные цвета — они сохранятся в итоговом файле.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
   </main>
 
   <!-- твой основной скрипт -->

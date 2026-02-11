@@ -1,4 +1,5 @@
 import re
+from typing import Literal
 
 def v_escape(s: str) -> str:
     if not s:
@@ -23,10 +24,6 @@ def norm_phone_display(p: str) -> str:
         return ""
     return re.sub(r"[^0-9+\- (),]", "", str(p)).strip()
 
-def extract_ext(work_short: str) -> str:
-    digits = re.findall(r"\d", work_short or "")
-    return "".join(digits[-4:]) if digits else ""
-
 def build_vcard_text(
     *,
     fn: str,
@@ -36,8 +33,15 @@ def build_vcard_text(
     email: str = "",
     mobile: str = "",
     work_short: str = "",
-    ext_base: str = "+74957486424",
+    only_work_short: bool = False,
 ) -> str:
+    """
+    Генерация vCard 3.0.
+
+    Телефоны:
+      - only_work_short=True  -> добавить ТОЛЬКО короткий рабочий номер как pref.
+      - only_work_short=False -> добавить короткий рабочий и мобильный (если заданы). Городской НЕ используется.
+    """
     last, first, mid = split_fio(fn)
     lines = [
         "BEGIN:VCARD",
@@ -46,19 +50,22 @@ def build_vcard_text(
         f"FN:{v_escape(fn)}",
         "X-ABShowAs:PERSON",
     ]
+
     if email:
         lines.append(f"EMAIL;TYPE=INTERNET;TYPE=WORK;TYPE=pref:{v_escape(email)}")
 
-    main_work = norm_phone_display(ext_base)
-    ext = extract_ext(work_short)
-    if main_work:
-        tel_line = v_escape(main_work) + (f",{v_escape(ext)}" if ext else "")
-        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE;TYPE=pref:{tel_line}")
+    ws = norm_phone_display(work_short)
+    mob = norm_phone_display(mobile)
 
-    if work_short:
-        lines.append(f"TEL;TYPE=WORK;TYPE=VOICE:{v_escape(norm_phone_display(work_short))}")
-    if mobile:
-        lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{v_escape(norm_phone_display(mobile))}")
+    if only_work_short:
+        if ws:
+            lines.append(f"TEL;TYPE=WORK;TYPE=VOICE;TYPE=pref:{v_escape(ws)}")
+    else:
+        if ws:
+            # короткий рабочий — помечаем предпочтительным
+            lines.append(f"TEL;TYPE=WORK;TYPE=VOICE;TYPE=pref:{v_escape(ws)}")
+        if mob:
+            lines.append(f"TEL;TYPE=CELL;TYPE=VOICE:{v_escape(mob)}")
 
     note = []
     if org:   note.append(f"Организация: {org}")

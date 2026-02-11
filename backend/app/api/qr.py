@@ -7,13 +7,13 @@ from fastapi import APIRouter, Request, Query, HTTPException
 from PIL import Image  # для работы с in-memory логотипом (POST)
 
 from backend.app.core.http import respond_png
-from backend.app.core.style import QRStyle, vcard_ext_base_from_env_or_cfg
 from backend.app.core.etag import style_signature
 from backend.app.core.renderer import render_qr_png
 from backend.app.core.vcard import build_vcard_text
 from backend.app.config.config import load_all_config  # JSON-стиль для ЛК
+from backend.app.core.style import QRStyle  # <-- ВАЖНО: добавлен импорт
 
-router = APIRouter(prefix="/api/v1", tags=["QR"]) 
+router = APIRouter(prefix="/api/v1", tags=["QR"])
 
 # -----------------------
 # Вспомогательные
@@ -27,27 +27,10 @@ def _mailto(to: str, subject: Optional[str], body: Optional[str]) -> str:
     if body:    q.append(f"body={quote(body)}")
     return f"mailto:{to}" + (("?" + "&".join(q)) if q else "")
 
-def _decode_header(val: str) -> str:
-    """Корректно декодирует кириллицу из заголовков (Latin-1 → UTF-8)."""
-    if not val:
-        return ""
-    try:
-        return val.encode("latin1").decode("utf-8")
-    except Exception:
-        return val.strip()
-
-def _get_lk_profile(request: Request) -> dict:
-    """Читает данные из заголовков X-Employee-* и безопасно декодирует кириллицу."""
-    h = request.headers
-    return {
-        "fn":         _decode_header(h.get("X-Employee-FullName")),
-        "org":        _decode_header(h.get("X-Employee-Org")),
-        "title":      _decode_header(h.get("X-Employee-Title")),
-        "dept":       _decode_header(h.get("X-Employee-Dept")),
-        "email":      _decode_header(h.get("X-Employee-Email")),
-        "mobile":     _decode_header(h.get("X-Employee-Mobile")),
-        "work_short": _decode_header(h.get("X-Employee-WorkShort")),
-    }
+def _truthy(v: Optional[str]) -> bool:
+    if v is None:
+        return False
+    return str(v).strip().lower() in ("1", "true", "yes", "on")
 
 # -----------------------
 # ЕДИНЫЙ endpoint (GET/POST)
@@ -63,13 +46,13 @@ async def generate_qr(
     # тип QR (для совместимости оставляем общий роутер)
     type: Optional[str] = Query(None, description="url | phone | mail | sms | vcard"),
 
-    # визуальные параметры (ui-режим, GET)
+    # визуальные параметры (ui-режим, GET/POST)
     fill: str = Query("#000000"),
     finder: str = Query("#000000"),
     bg: str = Query("#FFFFFF"),
     filename: Optional[str] = Query(None),
 
-    # ДАННЫЕ ДЛЯ ОБЩЕГО КОНСТРУКТОРА (ui, GET)
+    # ДАННЫЕ ДЛЯ ОБЩЕГО КОНСТРУКТОРА (ui, GET/POST)
     data: Optional[str] = Query(None),          # url/text
     number: Optional[str] = Query(None),        # phone вариант 1
     phonenumber: Optional[str] = Query(None),   # phone вариант 2
@@ -79,7 +62,7 @@ async def generate_qr(
     phone: Optional[str] = Query(None),         # sms
     text: Optional[str] = Query(None),
 
-    # ПОЛЯ vCard (ui-режим, GET)
+    # ПОЛЯ vCard (ui/lk, GET/POST)
     fn: Optional[str] = Query(None),
     org: Optional[str] = Query(""),
     dept: Optional[str] = Query(""),
@@ -87,8 +70,10 @@ async def generate_qr(
     email: Optional[str] = Query(""),
     mobile: Optional[str] = Query(""),
     work_short: Optional[str] = Query(""),
+
+    # Спец-режим: генерировать vCard только с коротким рабочим номером
+    only_work_short: Optional[str] = Query(None, description="1|true|yes|on -> только короткий номер"),
 ):
-    
     method = request.method.upper()
 
     # Если это POST — достанем form и переопределим значения полей из формы
@@ -135,6 +120,7 @@ async def generate_qr(
         email      = _p("email", email)
         mobile     = _p("mobile", mobile)
         work_short = _p("work_short", work_short)
+        only_work_short = _p("only_work_short", only_work_short)
 
     # -----------------------
     # Определяем режим
@@ -144,22 +130,28 @@ async def generate_qr(
         raise HTTPException(status_code=400, detail="context must be 'ui' or 'lk'")
 
     # -----------------------
-    # LK: фиксированный стиль из JSON и данные сотрудника с бэка
+    # LK: фиксированный стиль из JSON и параметры из query
     # -----------------------
     if ctx == "lk":
         if type and type.lower().strip() != "vcard":
             raise HTTPException(status_code=400, detail="В режиме 'lk' поддерживается только type=vcard")
         if method == "POST":
-            # Подстраховка: мы уже вернули 405 выше, но оставим и тут
             raise HTTPException(status_code=405, detail="POST запрещён для context=lk")
 
         cfg = load_all_config()                    # читает backend/app/config/qr_config.json
         style = QRStyle.from_config(cfg)           # бренд-цвета, логотип, EC и т.п.
-        ext_base = vcard_ext_base_from_env_or_cfg(cfg)
 
-        profile = _get_lk_profile(request)         # тут будет вызов твоего ЛК
-        if not profile.get("fn"):
-            raise HTTPException(status_code=400, detail="В режиме 'lk' требуется ФИО (см. интеграцию с ЛК)")
+        # В LK больше НЕ используем VCARD_EXT_BASE — строго короткий номер
+        profile = {
+            "fn":         (fn or "").strip(),
+            "org":        (org or "").strip(),
+            "title":      (title or "").strip(),
+            "dept":       (dept or "").strip(),
+            "email":      (email or "").strip(),
+            "work_short": (work_short or "").strip(),
+        }
+        if not profile["fn"]:
+            raise HTTPException(status_code=400, detail="В режиме 'lk' требуется параметр 'fn' (ФИО)")
 
         payload = build_vcard_text(
             fn=profile["fn"],
@@ -167,13 +159,13 @@ async def generate_qr(
             title=profile.get("title", ""),
             dept=profile.get("dept", ""),
             email=profile.get("email", ""),
-            mobile=profile.get("mobile", ""),
+            mobile="",                         # в LK включаем ТОЛЬКО короткий
             work_short=profile.get("work_short", ""),
-            ext_base=ext_base,
+            only_work_short=True,
         )
 
         default_name = "vcard_qr"
-        et_key = "|".join([payload, style_signature(style), f"extbase={ext_base}"])
+        et_key = "|".join([payload, style_signature(style), "lk-mode=only-short"])
         png = render_qr_png(payload, style)  # LK-логотип приходит из style.logo_path
         return respond_png(request, data_key=et_key, content=png, filename=(filename or default_name))
 
@@ -226,13 +218,26 @@ async def generate_qr(
     elif type == "vcard":
         if not (fn or "").strip():
             raise HTTPException(status_code=400, detail="Поле 'fn' обязательно для vcard")
-        # Для UI vcard базу берём из ENV/дефолта, как раньше
-        ext_base = vcard_ext_base_from_env_or_cfg({})
-        payload = build_vcard_text(
-            fn=fn, org=org, title=title, dept=dept, email=email, mobile=mobile, work_short=work_short, ext_base=ext_base
-        )
+
+        use_only_short = _truthy(only_work_short)
+
+        if use_only_short:
+            # только короткий номер
+            payload = build_vcard_text(
+                fn=fn, org=org, title=title, dept=dept,
+                email=email, mobile="", work_short=(work_short or ""),
+                only_work_short=True
+            )
+        else:
+            # без городского: только короткий и мобильный (если заданы)
+            payload = build_vcard_text(
+                fn=fn, org=org, title=title, dept=dept,
+                email=email, mobile=mobile, work_short=(work_short or ""),
+                only_work_short=False
+            )
+
         default_name = "vcard_qr"
-        et_key = f"vcard|{fn}|{style_signature(style)}|extbase={ext_base}"
+        et_key = f"vcard|{fn}|{style_signature(style)}|only_short={int(use_only_short)}"
 
     else:
         raise HTTPException(status_code=400, detail="Unknown type")

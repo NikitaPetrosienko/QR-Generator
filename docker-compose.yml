@@ -9,10 +9,6 @@ services:
     environment:
       # путь до JSON-конфига для режима context=lk
       - QR_CONFIG_FILE=backend/app/config/qr_config.json
-      # базовый рабочий номер, если хочешь переопределить
-      - VCARD_EXT_BASE=+74957486424
-      # таймзона (опционально)
-      - TZ=Europe/Helsinki
     ports:
       - "8000:8000"
     volumes:

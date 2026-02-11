@@ -31,12 +31,14 @@
     # UI:      http://localhost:8000/ui
     # Health:  http://localhost:8000/healthz
 
+
+> Конфиг читается **на каждый запрос** — менять `config/qr_config.json` можно без пересборки.
+
 ### Локально (без Docker)
     python -m venv venv
     ./venv/bin/pip install -r requirements.txt           # Windows: .\venv\Scripts\pip.exe ...
     ./venv/bin/uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 
-> Конфиг читается **на каждый запрос** — менять `config/qr_config.json` можно без пересборки.
 
 ---
 
@@ -138,7 +140,6 @@
       "QR_LOGO_PAD": 0.5,
       "QR_LOGO_PAD_RADIUS": 0,
       "QR_EC": "H",
-      "VCARD_EXT_BASE": "+74957486424",
       "WORKERS": 2
     }
 
