@@ -28,7 +28,7 @@ const logoPreview  = document.getElementById("logoPreview");
 const logoClearBtn = document.getElementById("logoClearBtn");
 
 // --- Тип формы (вкладки) ---
-let currentType = "url";
+let currentType = "vcard";
 
 // ================== ШАБЛОНЫ ФОРМ ==================
 function renderForm(type) {
@@ -39,7 +39,7 @@ function renderForm(type) {
     `,
     phone: `
       <label>Введите номер телефона</label>
-      <input id="data" type="text" placeholder="+7 5999 123 45 67" />
+      <input id="data" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 999 123 45 67" />
     `,
     mail: `
       <label>E-mail получателя</label>
@@ -51,7 +51,7 @@ function renderForm(type) {
     `,
     sms: `
       <label>Номер телефона</label>
-      <input id="phone" type="text" placeholder="+7 999 123 45 67" />
+      <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 999 123 45 67" />
       <label>Текст сообщения</label>
       <textarea id="text" rows="3" placeholder="Введите сообщение"></textarea>
     `,
@@ -63,16 +63,16 @@ function renderForm(type) {
       <input id="org" type="text" placeholder="Организация" />
 
       <label>Подразделение</label>
-      <input id="dept" type="text" pla56ceholder="Подразделение" />
+      <input id="dept" type="text" placeholder="Подразделение" />
 
       <label>Должность</label>
       <input id="title" type="text" placeholder="Должность" />
 
       <label>Email</label>
-      <input id="email" type="email" placeholder="user@nestro.ru" />
+      <input id="email" type="email" autocomplete="email" placeholder="user@nestro.ru" />
 
       <label>Мобильный</label>
-      <input id="mobile" type="text" placeholder="+7 999 123 45 67" />
+      <input id="mobile" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 999 123 45 67" />
 
       <label>Служебный телефон (полный)</label>
       <input id="work_short" type="tel" placeholder="+7 495 123-45-67,1234" autocomplete="tel" />
@@ -80,8 +80,11 @@ function renderForm(type) {
     `,
   };
   formFields.innerHTML = templates[type];
+
+  // форматирование телефонов + авто-рост textarea
+  attachPhoneFormatters(type);
+  attachAutoResizeTextareas();
 }
-renderForm(currentType);
 
 // ================== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==================
 tabs.forEach((tab) => {
@@ -98,11 +101,104 @@ const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
 const setError = (el) => (el.style.borderColor = "#e74c3c");
 const clearError = (el) => (el.style.borderColor = "");
 
+const PHONE_MAX_DIGITS = 15; // максимум по E.164
+
 function hexNorm(v) {
   const s = String(v || "").trim();
   const h = s.startsWith("#") ? s.toUpperCase() : ("#" + s).toUpperCase();
   return /^#[0-9A-F]{6}$/i.test(h) ? h : "#000000";
 }
+
+function digitsOnly(v) {
+  return String(v || "").replace(/\D/g, "");
+}
+
+function formatPhonePretty(v) {
+  const digits = digitsOnly(v).slice(0, PHONE_MAX_DIGITS);
+  if (!digits) return "";
+
+  // Если цифр больше 10 — считаем первые как код страны, последние 10 — номер
+  let cc = "";
+  let rest = digits;
+  if (digits.length > 10) {
+    cc = digits.slice(0, digits.length - 10);
+    rest = digits.slice(-10);
+  }
+
+  const parts = [];
+  if (cc) parts.push(cc);
+
+  if (rest.length <= 3) parts.push(rest);
+  else if (rest.length <= 6) parts.push(rest.slice(0, 3), rest.slice(3));
+  else if (rest.length <= 8) parts.push(rest.slice(0, 3), rest.slice(3, 5), rest.slice(5));
+  else parts.push(rest.slice(0, 3), rest.slice(3, 6), rest.slice(6, 8), rest.slice(8));
+
+  return "+" + parts.filter(Boolean).join(" ");
+}
+
+function normalizePhoneForPayload(v) {
+  const digits = digitsOnly(v).slice(0, PHONE_MAX_DIGITS);
+  return digits ? ("+" + digits) : "";
+}
+
+function formatPhonePrettyWithExt(v) {
+  const raw = String(v || "");
+  const hasComma = raw.includes(",");
+  const parts = raw.split(",");
+  const main = parts[0] || "";
+  const extRaw = parts.slice(1).join(","); // на случай нескольких запятых
+  const mainFormatted = formatPhonePretty(main);
+  const extDigits = digitsOnly(extRaw);
+  if (!mainFormatted) {
+    if (hasComma) return extDigits ? `,${extDigits}` : ",";
+    return extDigits || "";
+  }
+  if (hasComma) {
+    return extDigits ? `${mainFormatted},${extDigits}` : `${mainFormatted},`;
+  }
+  return mainFormatted;
+}
+
+function attachPhoneFormatterById(id, formatter = formatPhonePretty) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const onInput = () => {
+    const formatted = formatter(el.value);
+    if (formatted !== el.value) {
+      el.value = formatted;
+      // не трогаем каретку — так надёжнее в разных браузерах
+    }
+  };
+
+  el.addEventListener("input", onInput);
+  el.addEventListener("blur", onInput);
+  onInput();
+}
+
+function attachPhoneFormatters(type) {
+  if (type === "phone") attachPhoneFormatterById("data");
+  if (type === "sms") attachPhoneFormatterById("phone");
+  if (type === "vcard") attachPhoneFormatterById("mobile");
+  if (type === "vcard") attachPhoneFormatterById("work_short", formatPhonePrettyWithExt);
+}
+
+function attachAutoResizeTextareas() {
+  const maxHeight = 180;
+  document.querySelectorAll("#formFields textarea").forEach((ta) => {
+    const resize = () => {
+      ta.style.height = "auto";
+      const h = Math.min(ta.scrollHeight, maxHeight);
+      ta.style.height = h + "px";
+      ta.style.overflowY = ta.scrollHeight > maxHeight ? "auto" : "hidden";
+    };
+    ta.addEventListener("input", resize);
+    resize();
+  });
+}
+
+// первичная отрисовка
+renderForm(currentType);
 function isLogoSelected() {
   return !!(logoInput && logoInput.files && logoInput.files.length > 0);
 }
@@ -152,23 +248,60 @@ const requiredByType = {
 };
 function validate(type) {
   let ok = true;
+  const markInvalid = (el, msg) => {
+    if (!el) return;
+    setError(el);
+    if (msg) showFieldError(el, msg);
+    ok = false;
+    el.addEventListener("input", () => clearError(el), { once: true });
+    el.addEventListener("input", () => clearFieldError(el), { once: true });
+  };
+  const isEmailLike = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
   (requiredByType[type] || []).forEach((id) => {
     const el = document.getElementById(id);
     if (el) {
       if (!getVal(id)) {
-        setError(el);
-        ok = false;
+        markInvalid(el, "Обязательное поле");
       } else {
         clearError(el);
+        clearFieldError(el);
       }
-      el.addEventListener("input", () => clearError(el), { once: true });
     }
   });
+
+  // базовая валидация e-mail
+  if (type === "mail") {
+    const toEl = document.getElementById("to");
+    if (toEl && getVal("to") && !isEmailLike(getVal("to"))) {
+      markInvalid(toEl, "Некорректный e-mail");
+    }
+  }
+  if (type === "vcard") {
+    const emailEl = document.getElementById("email");
+    if (emailEl && getVal("email") && !isEmailLike(getVal("email"))) {
+      markInvalid(emailEl, "Некорректный e-mail");
+    }
+  }
   return ok;
+}
+
+function showFieldError(el, msg) {
+  clearFieldError(el);
+  const err = document.createElement("div");
+  err.className = "field-error";
+  err.textContent = msg;
+  el.insertAdjacentElement("afterend", err);
+}
+
+function clearFieldError(el) {
+  const next = el?.nextElementSibling;
+  if (next && next.classList.contains("field-error")) next.remove();
 }
 
 // ================== ПРЕСЕТЫ БРЕНДБУКА (если селекты существуют) ==================
 const BRAND_PRESETS = [
+  { hex: "#000000", label: "Чёрный" },
   { hex: "#009639", label: "Основной зелёный" },
   { hex: "#EAAA00", label: "Основной жёлтый" },
   { hex: "#9BBD1E", label: "Светло-зелёный" },
@@ -303,7 +436,7 @@ function collectParams(type) {
       params.data = getVal("data");
       break;
     case "phone":
-      params.number = getVal("data");
+      params.number = normalizePhoneForPayload(getVal("data"));
       break;
     case "mail":
       params.to = getVal("to");
@@ -311,15 +444,16 @@ function collectParams(type) {
       if (getVal("body")) params.body = getVal("body");
       break;
     case "sms":
-      params.phone = getVal("phone");
+      params.phone = normalizePhoneForPayload(getVal("phone"));
       if (getVal("text")) params.text = getVal("text");
       break;
     case "vcard":
       params.fn = getVal("fn");
-      ["org", "title", "dept", "email", "mobile", "work_short"].forEach((k) => {
+      ["org", "title", "dept", "email", "work_short"].forEach((k) => {
         const v = getVal(k);
         if (v) params[k] = v;
       });
+      if (getVal("mobile")) params.mobile = normalizePhoneForPayload(getVal("mobile"));
       break;
   }
   return params;

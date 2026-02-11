@@ -19,11 +19,11 @@
       <div class="form-section">
         <!-- Вкладки -->
         <div class="tab-row">
-          <button class="tab" data-type="vcard">Визитка</button>
+          <button class="tab active" data-type="vcard">Визитка</button>
           <button class="tab" data-type="phone">Телефон</button>
           <button class="tab" data-type="sms">SMS</button>
           <button class="tab" data-type="mail">E-mail</button>
-          <button class="tab active" data-type="url">Ссылка</button>
+          <button class="tab" data-type="url">Ссылка</button>
         </div>
 
         <!-- Поля формы будет рендерить твой script.js -->
@@ -44,6 +44,7 @@
               <!-- скрытый системный select для совместимости с твоим script.js -->
               <select id="fillPreset" class="preset-select" hidden>
                 <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#000000">Чёрный</option>
                 <option value="#009639">Основной зелёный</option>
                 <option value="#EAAA00">Основной жёлтый</option>
                 <option value="#9BBD1E">Светло-зелёный</option>
@@ -61,9 +62,10 @@
               <div class="cs" data-for="fill">
                 <button type="button" class="cs__trigger" aria-haspopup="listbox" aria-expanded="false">
                   <span class="cs__dot" style="--c:#000000"></span>
-                  <span class="cs__label">Произвольный</span>
+                  <span class="cs__label">Чёрный</span>
                 </button>
                 <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" role="option" data-value="#000000"><span class="cs__dot" style="--c:#000000"></span>Чёрный</li>
                   <li class="cs__item" role="option" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
                   <li class="cs__item" role="option" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
                   <li class="cs__item" role="option" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
@@ -74,7 +76,6 @@
                   <li class="cs__item" role="option" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
                   <li class="cs__item" role="option" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
                   <li class="cs__item" role="option" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
-                  <li class="cs__item" role="option" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
                 </ul>
               </div>
 
@@ -85,6 +86,7 @@
               </div>
               <select id="finderPreset" class="preset-select" hidden>
                 <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#000000">Чёрный</option>
                 <option value="#009639">Основной зелёный</option>
                 <option value="#EAAA00">Основной жёлтый</option>
                 <option value="#9BBD1E">Светло-зелёный</option>
@@ -100,9 +102,10 @@
               <div class="cs" data-for="finder">
                 <button type="button" class="cs__trigger" aria-haspopup="listbox" aria-expanded="false">
                   <span class="cs__dot" style="--c:#000000"></span>
-                  <span class="cs__label">Произвольный</span>
+                  <span class="cs__label">Чёрный</span>
                 </button>
                 <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" role="option" data-value="#000000"><span class="cs__dot" style="--c:#000000"></span>Чёрный</li>
                   <li class="cs__item" role="option" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
                   <li class="cs__item" role="option" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
                   <li class="cs__item" role="option" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
@@ -113,7 +116,6 @@
                   <li class="cs__item" role="option" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
                   <li class="cs__item" role="option" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
                   <li class="cs__item" role="option" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
-                  <li class="cs__item" role="option" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
                 </ul>
               </div>
 
@@ -124,6 +126,7 @@
               </div>
               <select id="bgPreset" class="preset-select" hidden>
                 <option value="" disabled selected>Выбрать из брендбука…</option>
+                <option value="#000000">Чёрный</option>
                 <option value="#009639">Основной зелёный</option>
                 <option value="#EAAA00">Основной жёлтый</option>
                 <option value="#9BBD1E">Светло-зелёный</option>
@@ -142,6 +145,7 @@
                   <span class="cs__label">Белый</span>
                 </button>
                 <ul class="cs__menu" role="listbox" aria-hidden="true">
+                  <li class="cs__item" role="option" data-value="#000000"><span class="cs__dot" style="--c:#000000"></span>Чёрный</li>
                   <li class="cs__item" role="option" data-value="#009639"><span class="cs__dot" style="--c:#009639"></span>Основной зелёный</li>
                   <li class="cs__item" role="option" data-value="#EAAA00"><span class="cs__dot" style="--c:#EAAA00"></span>Основной жёлтый</li>
                   <li class="cs__item" role="option" data-value="#9BBD1E"><span class="cs__dot" style="--c:#9BBD1E"></span>Светло-зелёный</li>
@@ -152,7 +156,6 @@
                   <li class="cs__item" role="option" data-value="#00375F"><span class="cs__dot" style="--c:#00375F"></span>Глубокий синий</li>
                   <li class="cs__item" role="option" data-value="#53565A"><span class="cs__dot" style="--c:#53565A"></span>Серый 1</li>
                   <li class="cs__item" role="option" data-value="#E30613"><span class="cs__dot" style="--c:#E30613"></span>Красный</li>
-                  <li class="cs__item" role="option" data-value="__custom__"><span class="cs__dot cs__dot--custom"></span>Произвольный</li>
                 </ul>
               </div>
             </div>
@@ -273,6 +276,7 @@
   (function () {
     // Человекочитаемые названия без хексов:
     const PRESET_LABELS = {
+      "#000000": "Чёрный",
       "#009639": "Основной зелёный",
       "#EAAA00": "Основной жёлтый",
       "#9BBD1E": "Светло-зелёный",
@@ -282,12 +286,21 @@
       "#0B6C31": "Тёмно-зелёный",
       "#00375F": "Глубокий синий",
       "#53565A": "Серый 1",
-      "#E30613": "Красный",
-      "__custom__": "Произвольный"
+      "#E30613": "Красный"
     };
 
     let uid = 0;
     const genId = () => 'cs-' + (++uid);
+
+    const normHex = (v) => {
+      const s = String(v || "").trim().toUpperCase();
+      if (!s) return "";
+      return s.startsWith("#") ? s : ("#" + s);
+    };
+    const labelFor = (v) => {
+      const H = normHex(v);
+      return PRESET_LABELS[H] || H;
+    };
 
     function updateNativeAndPicker(target, value) {
       const sel    = document.getElementById(target + 'Preset');
@@ -298,7 +311,6 @@
       // если выбрали пресет — обновляем и color input
       if (value !== '__custom__') {
         picker.value = value;
-        picker.dispatchEvent(new Event('input', { bubbles: true }));
       }
     }
 
@@ -412,18 +424,18 @@
         const li = e.target.closest('.cs__item');
         if (!li) return;
         const val = li.dataset.value;
-        labelEl.textContent = PRESET_LABELS[val] || 'Произвольный';
-        dot.style.setProperty('--c', val === '__custom__' ? picker.value : val);
+        labelEl.textContent = labelFor(val);
+        dot.style.setProperty('--c', val);
         updateNativeAndPicker(target, val);
         closeMenu();
       });
 
-      // когда юзер меняет color-picker — считаем это "Произвольный"
+      // когда юзер меняет color-picker — считаем это кастомным цветом
       picker.addEventListener('input', ()=>{
-        const v = picker.value;
+        const v = normHex(picker.value);
         dot.style.setProperty('--c', v);
-        labelEl.textContent = PRESET_LABELS['__custom__'];
-        sel.value = '__custom__';
+        labelEl.textContent = labelFor(v);
+        sel.value = PRESET_LABELS[v] ? v : '__custom__';
         sel.dispatchEvent(new Event('change', { bubbles:true }));
       });
 
@@ -443,7 +455,7 @@
       // обновить кастомный селект (кружок + подпись)
       const trigger = document.querySelector(`.cs[data-for="${target}"] .cs__trigger`);
       if (trigger) {
-        trigger.querySelector('.cs__label').textContent = PRESET_LABELS[hex] || 'Произвольный';
+        trigger.querySelector('.cs__label').textContent = labelFor(hex);
         trigger.querySelector('.cs__dot').style.setProperty('--c', hex);
       }
     }
@@ -474,6 +486,7 @@
       function openAnim(){
         d.setAttribute('open','');                // сразу «открыт» для доступности
         panel.classList.add('is-animating');
+        panel.style.transition = '';             // использовать CSS-транзишн
         panel.style.overflow = 'hidden';          // во время анимации
         // стартовое состояние
         panel.style.opacity = 0;
@@ -497,6 +510,7 @@
 
       function closeAnim(){
         panel.classList.add('is-animating');
+        panel.style.transition = 'height 360ms cubic-bezier(0.22,1,0.36,1), opacity 280ms ease, padding 200ms ease';
         panel.style.overflow = 'hidden';          // закрываем — снова прячем лишнее
         panel.style.height  = panel.scrollHeight + 'px'; // стартовая точка
         panel.style.opacity = 1;
@@ -504,12 +518,13 @@
         requestAnimationFrame(()=>{
           panel.style.height  = '0px';
           panel.style.opacity = 0;
-          panel.style.padding = '0 12px';         // убираем вертикальные отступы к концу анимации
+          panel.style.padding = '0 12px';
         });
 
         const fin = (e)=>{
           if(e.propertyName !== 'height') return;
           panel.classList.remove('is-animating');
+          panel.style.transition = '';
           d.removeAttribute('open');              // реально закрываем после анимации
           panel.removeEventListener('transitionend', fin);
         };

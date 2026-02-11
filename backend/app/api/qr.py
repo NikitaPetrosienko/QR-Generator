@@ -141,13 +141,14 @@ async def generate_qr(
         cfg = load_all_config()                    # читает backend/app/config/qr_config.json
         style = QRStyle.from_config(cfg)           # бренд-цвета, логотип, EC и т.п.
 
-        # В LK больше НЕ используем VCARD_EXT_BASE — строго короткий номер
+        # В LK больше НЕ используем VCARD_EXT_BASE — короткий + мобильный (если есть)
         profile = {
             "fn":         (fn or "").strip(),
             "org":        (org or "").strip(),
             "title":      (title or "").strip(),
             "dept":       (dept or "").strip(),
             "email":      (email or "").strip(),
+            "mobile":     (mobile or "").strip(),
             "work_short": (work_short or "").strip(),
         }
         if not profile["fn"]:
@@ -159,9 +160,9 @@ async def generate_qr(
             title=profile.get("title", ""),
             dept=profile.get("dept", ""),
             email=profile.get("email", ""),
-            mobile="",                         # в LK включаем ТОЛЬКО короткий
+            mobile=profile.get("mobile", ""),
             work_short=profile.get("work_short", ""),
-            only_work_short=True,
+            only_work_short=False,
         )
 
         default_name = "vcard_qr"
